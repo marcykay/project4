@@ -9,6 +9,8 @@ module.exports = (db) => {
         response.send(stuff);
     };
 
+
+
     let get = (request, response) => {
 
         // use pokemon model method `get` to retrieve pokemon data

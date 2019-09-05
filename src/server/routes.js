@@ -5,4 +5,6 @@ module.exports = (app, db) => {
   app.get('/pokemon/:id', pokemon.get);
 
   app.get('/api/pokemon/:id', pokemon.apiget);
+
+  //app.get('/', pokemon.frontPage);
 };

@@ -18,6 +18,9 @@ class MainPage extends React.Component {
             weather2HrData : "",
             weather24HrData : "",
             data:"",
+            busStops:[],
+            busStopsCounter: 0,
+            endOfArray: false,
         };
     }
 
@@ -93,6 +96,47 @@ class MainPage extends React.Component {
         request.setRequestHeader('accept', 'application/json');
         request.setRequestHeader('Access-Control-Allow-Origin', '*');
         request.send();
+        //http://datamall2.mytransport.sg/ltaodataservice/BusStops
+    }
+
+    ajaxBusStops() {
+        const reactComponent = this;
+        let skip = "";
+        if (!reactComponent.state.endOfArray) {
+
+        if (this.state.busStopsCounter > 0) {
+            skip = "?$skip=" + this.state.busStopsCounter*500;
+        }
+
+        var responseHandler = function() {
+            const result = JSON.parse(this.responseText);
+            reactComponent.setState({ busStops:reactComponent.state.busStops.concat(result.value) });
+            console.log(reactComponent.state.busStops);
+            reactComponent.setState({busStopsCounter: reactComponent.state.busStopsCounter+1});
+            console.log(reactComponent.state.busStopsCounter);
+            if (result.value.length===0) {
+                console.log(result.value.length);
+                reactComponent.setState({endOfArray: true});
+            }
+            if (!reactComponent.state.endOfArray){
+                console.log("recursive call");
+                reactComponent.ajaxBusStops();
+            } else {console.log("hurray!")}
+
+        };
+        var request = new XMLHttpRequest();
+        var api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusStops" + skip;
+        console.log(api_url);
+        request.addEventListener("load", responseHandler);
+        request.open("GET", api_url);
+
+        request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
+        request.setRequestHeader('accept', 'application/json');
+        request.setRequestHeader('Access-Control-Allow-Origin', '*');
+        request.send();
+        } else {
+            console.log("unable to proceed")
+        }
     }
 
     render() {
@@ -103,8 +147,8 @@ class MainPage extends React.Component {
 
             returnBus = this.state.data.Services.map((bus, index)=>{
                 return (
-                    <div>
-                        <p key={index}>BUS NO: {bus.ServiceNo}</p>
+                    <div key={index}>
+                        <p>BUS NO: {bus.ServiceNo}</p>
                         <span>NEXT BUS:  <Moment diff={date} unit="minutes">{bus.NextBus.EstimatedArrival}</Moment></span>
                         <span>,  <Moment diff={date} unit="minutes">{bus.NextBus2.EstimatedArrival}</Moment></span>
                         <span>,  <Moment diff={date} unit="minutes">{bus.NextBus3.EstimatedArrival}</Moment></span>
@@ -174,6 +218,8 @@ class MainPage extends React.Component {
             <p>
                 <input type="text" onChange={(event)=>this.updateInput2(event)} value={this.state.input2} />21</p>
             <button onClick={()=>this.ajaxBusArrival()}>Load Bus Arrival
+            </button>
+            <button onClick={()=>this.ajaxBusStops()}>Bus Stops
             </button>
             <button onClick={()=>this.ajaxWeather2HrForecast()}>Load 2hr Weather Forecast
             </button>
