@@ -4,29 +4,91 @@ import PropTypes from 'prop-types';
 
 import styles from './style.scss';
 
-var moment() = require('moment');
+import Moment from 'react-moment';
+import moment from 'moment';
 
 class MainPage extends React.Component {
     constructor() {
         super();
         this.state = {
+            input1 : "",
+            input2 : "",
+            location : "Ang Mo Kio",
+            locations : [],
+            weather2HrData : "",
+            weather24HrData : "",
             data:"",
         };
     }
 
+    updateInput1(event) {
+        this.setState({input1: event.target.value});
+    }
+
+    updateInput2(event) {
+        this.setState({input2: event.target.value});
+    }
+
+    updateInput3(event) {
+        this.setState({location: event.target.value});
+    }
+
+    ajaxWeather24HrForecast() {
+        const reactComponent = this;
+        var responseHandler = function() {
+            const result = JSON.parse(this.responseText);
+            let arr = result.area_metadata;
+            let locations = [];
+            for (let i in arr) {
+                locations.push(arr[i].name);
+            }
+            // reactComponent.setState({ locations:locations });
+            reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
+            console.log(reactComponent.state.weather24HrData);
+        };
+        var request = new XMLHttpRequest();
+        request.addEventListener("load", responseHandler);
+        request.open("GET", "https://api.data.gov.sg/v1/environment/24-hour-weather-forecast?date=2019-09-05" );
+        request.setRequestHeader('accept', 'application/json');
+        request.send();
+    }
 
 
-    searchDatabase() {
+    ajaxWeather2HrForecast() {
+        const reactComponent = this;
+        var responseHandler = function() {
+            const result = JSON.parse(this.responseText);
+            let arr = result.area_metadata;
+            let locations = [];
+            for (let i in arr) {
+                locations.push(arr[i].name);
+            }
+            reactComponent.setState({ locations:locations });
+            reactComponent.setState({ weather2HrData:result.items[result.items.length-1] });
+            console.log(reactComponent.state.weather2HrData.forecasts);
+        };
+        var request = new XMLHttpRequest();
+        request.addEventListener("load", responseHandler);
+        request.open("GET", "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=2019-09-05" );
+        request.setRequestHeader('accept', 'application/json');
+        request.send();
+    }
+
+    ajaxBusArrival() {
         const reactComponent = this;
         var responseHandler = function() {
             const result = JSON.parse(this.responseText);
             reactComponent.setState({ data:result });
-            console.log(reactComponent.state.data);
             console.log(reactComponent.state.data.Services);
         };
         var request = new XMLHttpRequest();
+        var api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+this.state.input1;
+        var api_url2 = "&ServiceNo="+this.state.input2;
+        if (this.state.input2) {
+            api_url1 = api_url1+api_url2;
+        }
         request.addEventListener("load", responseHandler);
-        request.open("GET", "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode=76209&ServiceNo=21");
+        request.open("GET", api_url1 );
         request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
         request.setRequestHeader('accept', 'application/json');
         request.setRequestHeader('Access-Control-Allow-Origin', '*');
@@ -34,38 +96,106 @@ class MainPage extends React.Component {
     }
 
     render() {
-        let returnData = "";
+        let returnBus = "";
+        console.log('rendering mainPage.jsx');
+        const date = new Date();
         if (this.state.data.Services) {
-            returnData = this.state.data.Services.map((bus)=>{
+
+            returnBus = this.state.data.Services.map((bus, index)=>{
                 return (
                     <div>
-                        <table>
-                            <tr>
-                                <th>Bus Service</th>
-                                <th>Next Bus</th>
-                                <th>Next 2nd Bus</th>
-                                <th>Next 3rd Bus</th>
-                            </tr>
-                            <tr>
-                                <td>{bus.ServiceNo}</td>
-                                <td>{bus.NextBus.EstimatedArrival}</td>
-                                <td>{bus.NextBus2.EstimatedArrival}</td>
-                                <td>{bus.NextBus3.EstimatedArrival}</td>
-                            </tr>
-                        </table>
+                        <p key={index}>BUS NO: {bus.ServiceNo}</p>
+                        <span>NEXT BUS:  <Moment diff={date} unit="minutes">{bus.NextBus.EstimatedArrival}</Moment></span>
+                        <span>,  <Moment diff={date} unit="minutes">{bus.NextBus2.EstimatedArrival}</Moment></span>
+                        <span>,  <Moment diff={date} unit="minutes">{bus.NextBus3.EstimatedArrival}</Moment></span>
                     </div>
                 );
             });
         }
+
+        let selectorForm = "";
+        let forecast2HrWeather = "";
+        let forecast24HrWeather = ""
+
+        if (this.state.locations.length > 0) {
+
+            let locationSelector = "";
+            locationSelector = this.state.locations.map( (loc, index)=>{
+                return (
+                    <option key={index} data-index={index} value={loc}>{loc}</option>
+                );
+            });
+
+            selectorForm = (
+                <label>Select your location
+                <select value={this.state.location} onChange={(event)=>this.updateInput3(event)}>
+                {locationSelector}
+                </select>
+                </label>
+            );
+
+        }
+
+        if (this.state.weather2HrData) {
+            for (let i = 0; i < this.state.weather2HrData.forecasts.length; i++){
+                if (this.state.weather2HrData.forecasts[i].area === this.state.location){
+                    forecast2HrWeather = this.state.weather2HrData.forecasts[i].forecast;
+                    break;
+                }
+            }
+            console.log(forecast2HrWeather);
+        }
+
+        if (this.state.weather24HrData) {
+
+
+            forecast24HrWeather = (
+                <div>
+                    <p>Forecast: {this.state.weather24HrData.general.forecast}</p>
+                    <p>Temperature: {this.state.weather24HrData.general.temperature.high} / {this.state.weather24HrData.general.temperature.low}</p>
+                </div>
+                );
+
+
+
+            console.log(forecast24HrWeather);
+
+        }
+
+
+
         return (
             <div>
             <h2 className={styles.desc}>
                 MainPage Reporting
             </h2>
-            <button onClick={()=>this.searchDatabase()}>search
+            <p>
+                <input type="text" onChange={(event)=>this.updateInput1(event)} value={this.state.input1} />76209</p>
+            <p>
+                <input type="text" onChange={(event)=>this.updateInput2(event)} value={this.state.input2} />21</p>
+            <button onClick={()=>this.ajaxBusArrival()}>Load Bus Arrival
             </button>
-                {returnData}
+            <button onClick={()=>this.ajaxWeather2HrForecast()}>Load 2hr Weather Forecast
+            </button>
+            <button onClick={()=>this.ajaxWeather24HrForecast()}>Load 24hr Weather Forecast
+            </button>
+            <p>
+            <Moment toNow>{date}</Moment>
+            </p>
+                {returnBus}
+
+                <div>
+                    {selectorForm}
+                </div>
+                <div>
+                    <h3>Forecast 2hr</h3>
+                    <p>Location:{this.state.location}</p>
+                    {forecast2HrWeather}
+                    <h3>Forecast 24hr</h3>
+                    {forecast24HrWeather}
+                </div>
             </div>
+
         );
     }
 }
