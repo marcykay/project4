@@ -11,7 +11,6 @@ module.exports = (dbPoolInstance) => {
         let query = 'INSERT INTO users (name, password) values ($1, $2) returning *';
         dbPoolInstance.query(query, values, (error, queryResult) => {
             if (error) {
-                console.log("error in add user")
                 callback(error, null);
             } else {
                 if (queryResult.rows.length > 0) {
@@ -24,15 +23,12 @@ module.exports = (dbPoolInstance) => {
     };
 
     let getUserLogin = (data, callback) => {
-        console.log(data);
         let query = 'SELECT * FROM users WHERE name=($1)';
         // let data = [];
         // values.push(data[0]);
 
         dbPoolInstance.query(query, data, (error, queryResult) => {
-            console.log("query completed");
             if (error) {
-                console.log("error :" + error);
                 callback(error, null);
             } else {
                 if (queryResult.rows.length > 0) {
@@ -45,17 +41,12 @@ module.exports = (dbPoolInstance) => {
     }
 
     let addData = (values, callback) => {
-        console.log("...");
-        console.log("adding data..................");
-        console.log(values);
         let query = 'INSERT INTO bus_stops_codes (busstopcode, description, latitude, longitude, roadname) values ($1, $2, $3, $4, $5) returning id';
         dbPoolInstance.query(query, values, (error, queryResult) => {
             if (error) {
-                console.log("error in database");
                 callback(error, null);
             } else {
                 if (queryResult.rows.length > 0) {
-                    console.log(queryResult);
                     callback(null, queryResult.rows);
                 } else {
                     callback(null, null);
@@ -64,11 +55,31 @@ module.exports = (dbPoolInstance) => {
         });
     };
 
+    let addBusPreference = (values, callback) => {
+        console.log("...");
+        console.log("adding bus preference..................");
+        console.log(values);
+        let query = 'INSERT INTO bus_preference (username, busstopcode, serviceno) values ($1, $2, $3) returning *';
+        dbPoolInstance.query(query, values, (error, queryResult) => {
+            if (error) {
+                console.log("error in database");
+                callback(error, null);
+            } else {
+                if (queryResult.rows.length > 0) {
+                    console.log(queryResult.rows[0]);
+                    callback(null, queryResult.rows);
+                } else {
+                    callback(null, null);
+                }
+            }
+        });
+    };
 
     return {
         addData,
         addUser,
-        getUserLogin
+        getUserLogin,
+        addBusPreference,
     };
 };
 

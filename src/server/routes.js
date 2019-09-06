@@ -2,6 +2,7 @@ module.exports = (app, db) => {
 
     const dashboard = require('./controllers/dashboard')(db);
 
+    app.post('/data/buspreference', dashboard.addBusPreference);
     app.post('/secret', dashboard.uploadBusStopCodes);
     app.get('/register', dashboard.register);
     app.post('/register', dashboard.registerNewUser);

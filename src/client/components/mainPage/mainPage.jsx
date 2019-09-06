@@ -10,6 +10,7 @@ class MainPage extends React.Component {
         this.state = {
             input1 : "",
             input2 : "",
+            input5 : "",
             location : "Ang Mo Kio",
             locations : [],
             weather2HrData : "",
@@ -20,14 +21,40 @@ class MainPage extends React.Component {
             endOfArray: false,
             busStopCode: "",
             filteredBusStops: [],
-            user: {
-                name : "",
-            },
+            latitude: "",
+            longitude: "",
         };
     }
 
-    fetchUserPreferences(){
-        this.setState({name: namedocument.cookie.username});
+    fetchUserName() {
+        let stringArr = document.cookie.split('=');
+        return stringArr[stringArr.length-1];
+    }
+
+    getCoordinates() {
+        const reactComponent = this;
+        let options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        function success(pos) {
+            let crd = pos.coords;
+            console.log('Your current position is:');
+            console.log(`Latitude : ${crd.latitude}`);
+            reactComponent.setState({latitude : crd.latitude})
+            console.log(`Longitude: ${crd.longitude}`);
+            reactComponent.setState({longitude : crd.longitude})
+
+            console.log(`More or less ${crd.accuracy} meters.`);
+        }
+
+        function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error, options)
     }
 
     updateInput1(event) {
@@ -44,6 +71,7 @@ class MainPage extends React.Component {
 
     }
 
+
     updateInput2(event) {
         this.setState({input2: event.target.value});
     }
@@ -54,6 +82,10 @@ class MainPage extends React.Component {
 
     updateInput4(event) {
         this.setState({busStopCode: event.target.value});
+    }
+
+    updateInput5(event) {
+        this.setState({input5: event.target.value});
     }
 
     consolePrint() {
@@ -77,21 +109,38 @@ class MainPage extends React.Component {
 
     ajaxWeather24HrForecast() {
         const reactComponent = this;
+        let date = this.getDateYYYYMMDD();
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
             reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
         };
         let request = new XMLHttpRequest();
         request.addEventListener("load", responseHandler);
-        request.open("GET", "https://api.data.gov.sg/v1/environment/24-hour-weather-forecast?date=2019-09-05" );
+        request.open("GET", "https://api.data.gov.sg/v1/environment/24-hour-weather-forecast?date="+date );
         request.setRequestHeader('accept', 'application/json');
         request.send();
     }
 
+    ajaxAddBusPreference() {
+        const reactComponent = this;
+        let data1 = {username: this.fetchUserName(), busstopcode: reactComponent.state.busStopCode, serviceno: reactComponent.state.input5};
+        let data2 = JSON.stringify(data1);
+        console.log(data2);
+        let responseHandler = function() {
+            const result = JSON.parse(this.responseText);
+            reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
+            console.log("ajax response handler function");
+        };
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.addEventListener("load", responseHandler);
+        xmlhttp.open("POST", "./data/buspreference" );
+        xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xmlhttp.send(data2);
+    }
+
     ajaxPumpData(value) {
         const reactComponent = this;
-        let temp = value;
-        let data1 = {data: temp};
+        let data1 = {data: value};
         let data2 = JSON.stringify(data1);
 
         console.log(data2);
@@ -108,10 +157,21 @@ class MainPage extends React.Component {
     }
 
 
+    getDateYYYYMMDD() {
+        let d = new Date();
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        let year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
+    }
 
 
     ajaxWeather2HrForecast() {
         const reactComponent = this;
+        let date = this.getDateYYYYMMDD();
+        console.log(date);
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
             let arr = result.area_metadata;
@@ -125,7 +185,7 @@ class MainPage extends React.Component {
         };
         let request = new XMLHttpRequest();
         request.addEventListener("load", responseHandler);
-        request.open("GET", "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=2019-09-05" );
+        request.open("GET", "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date="+date );
         request.setRequestHeader('accept', 'application/json');
         request.send();
     }
@@ -270,21 +330,33 @@ class MainPage extends React.Component {
         return (
             <div>
             <p>
-                <input type="text" onChange={(event)=>this.updateInput1(event)} value={this.state.input1} />76209</p>
+            <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names
+            <input type="text" onChange={ (event)=>this.updateInput5(event) } value={this.state.input5} />Bus Service Nos
+            </p>
             <p>
-                <input type="text" onChange={(event)=>this.updateInput2(event)} value={this.state.input2} />21</p>
+                <input type="text" onChange={ (event)=>this.updateInput2(event) } value={this.state.input2} />service no</p>
             <p>
-                <input type="text" value={this.state.busStopCode} />bus stop code from selector</p>
-            <button onClick={()=>this.ajaxBusArrival()}>Load Bus Arrival
+                <input type="text" value={this.state.busStopCode} />bus stop code</p>
+
+            <button onClick={()=>this.ajaxBusArrival()}>
+            Load Bus Arrival
             </button>
-            <button onClick={()=>this.ajaxBusStops()}>Bus Stops
+            <button onClick={()=>this.ajaxBusStops()}>
+            Bus Stops
             </button>
-            <button onClick={()=>this.ajaxWeather2HrForecast()}>Load 2hr Weather Forecast
+            <button onClick={()=>this.ajaxWeather2HrForecast()}>
+            Load 2hr Weather Forecast
             </button>
-            <button onClick={()=>this.ajaxWeather24HrForecast()}>Load 24hr Weather Forecast
+            <button onClick={()=>this.ajaxWeather24HrForecast()}>
+            Load 24hr Weather Forecast
             </button>
-            <button onClick={()=>this.consolePrint()}>CONSOLE LOG
+            <button onClick={()=>this.ajaxAddBusPreference()}>
+            Add Bus Preference
             </button>
+            <button onClick={()=>this.getCoordinates()}>
+            Load Coordinates
+            </button>
+
             <p>{selectorBusStops}</p>
                 {returnBus}
 
@@ -297,6 +369,9 @@ class MainPage extends React.Component {
                     {forecast2HrWeather}
                     <h3>Forecast 24hr</h3>
                     {forecast24HrWeather}
+                    <h2>GeoLocation</h2>
+                    <h3>{this.state.latitude} : {this.state.longitude}</h3>
+
                 </div>
             </div>
         );

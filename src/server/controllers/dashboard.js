@@ -4,17 +4,10 @@ const clientBuildPath = resolve(__dirname, '..', '..', 'client');
 
 module.exports = (db) => {
 
-    let get = (request, response) => {
+    let get = function(request, response){
         if (checkSession(request)) {
             let currentUserId = request.cookies['user_id'];
             console.log("=========ALREADY LOGIN=============");
-            // db.query.getAllNotes(currentUserId, (error, allResults) => {
-            //     let currentUserId = request.cookies['user_id'];
-            //     console.log("loadIndex======================");
-            //     response.render('/gogo', {
-            //         'allResults': allResults
-            //     });
-            // });
             response.redirect('/gogo');
         } else {
             response.redirect('/login');
@@ -22,7 +15,8 @@ module.exports = (db) => {
         }
     };
 
-    let login = (request, response) => {
+    let login = function(request, response){
+        logoutUser(request,response);
         console.log("Login Load Function");
         response.render('dashboard/login');
     };
@@ -52,67 +46,89 @@ module.exports = (db) => {
         });
     }
 
-    let register = (request, response) => {
+    let register = function(request, response){
+        logoutUser(request,response);
         console.log("Register Load Function");
         response.render('dashboard/register');
     };
 
-    let registerNewUser = (request, response) => {
+    let registerNewUser = function(request, response){
         console.log("Register New User Function");
         let data = [request.body.username, hashFunc(request.body.password)];
         db.query.addUser(data, (error, results) => {
             if (error !== null) {
                 let errormessage = `<h2>DUPLICATE USERNAME. CHOOSE ANOTHER.</h2><h5>${error.detail}</h5>`;
                 response.status(403).send(errormessage);
-                return;
             } else {
                 giveCookie(results[0].id, request.body.username, response);
                 console.log("##### login successful ##### ")
                 response.redirect('/gogo');
-                return;
             }
         });
     };
 
-    let logoutUser = (request, response) => {
+    let logoutUser = function(request, response){
         console.log("Logout Function");
         destroyCookie(response);
-        response.redirect('/');
     };
 
-    let uploadBusStopCodes = (request, response) => {
-        let d = Date(Date.now());
-        console.log("+++++++++++++" );
-        console.log("+++++++++++++" );
+    let uploadBusStopCodes = function(request, response){
         request.body.data.map((info)=>{
             let values = [info.BusStopCode, info.Description, info.Latitude, info.Longitude, info.RoadName];
-                 db.query.addData(values, (error, allResults) => {
-                     console.log("");
-                     console.log("");
-                     console.log(allResults);
-                     console.log("");
-                     console.log("");
-                 });
+                db.query.addData(values, (error, allResults) => {
+                    if (error === null) {
+                        console.log("");
+                        console.log("");
+                        console.log(allResults);
+                        console.log("");
+                        console.log("");
+                        console.log("");
+                        response.status(200).send(allResults[0]);
+                    } else {
+                        let errormessage = `<h2>Error!</h2><h5>${error.detail}</h5>`;
+                        response.status(406).send(errormessage);
+                    }
+                });
         });
         response.status(200).send("OK!");
     }
 
+    let addBusPreference = function(request, response) {
+        console.log(request.body);
+        let values = [request.body.username, request.body.busstopcode, request.body.serviceno ];
+        db.query.addBusPreference(values, (error, allResults) => {
+
+            console.log("88888888888888888888888888888888888888");
+            console.log(error);
+            if (error === null) {
+                console.log(error);
+                console.log("88888888888888888888888888888888888888");
+                console.log("88888888888888888888888888888888888888");
+                console.log(allResults);
+                console.log("");
+                response.status(200).send(allResults[0]);
+            } else {
+                let errormessage = `<h2>Error!</h2><h5>${error.detail}</h5>`;
+                response.status(406).send(errormessage);
+            }
+        })
+    }
+
     // Helper Functions
-    let giveCookie = function(userId, username, response) {
+    function giveCookie(userId, username, response) {
         let currentSessionCookie = hashFunc(userId + 'logged_id');
         response.cookie('haveagoodday', currentSessionCookie);
         response.cookie('user_id', userId);
         response.cookie('username', username);
-        console.log("cookie issued!");
     }
 
-    let destroyCookie = function(response) {
+    function destroyCookie(response) {
         response.cookie('haveagoodday', "");
         response.cookie('user_id', "");
         response.cookie('username', "");
     }
 
-    let checkSession = function(request) {
+    function checkSession(request) {
         let validSession = request.cookies['haveagoodday'];
         let validUser = request.cookies['user_id'];
         if (validSession && validUser) {
@@ -120,7 +136,6 @@ module.exports = (db) => {
                 return true;
             }
         }
-        console.log("authentification error");
         return false;
     };
 
@@ -131,7 +146,8 @@ module.exports = (db) => {
         register: register,
         registerNewUser: registerNewUser,
         logoutUser: logoutUser,
-        uploadBusStopCodes: uploadBusStopCodes
+        uploadBusStopCodes: uploadBusStopCodes,
+        addBusPreference: addBusPreference,
     }
 
 };

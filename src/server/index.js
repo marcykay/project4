@@ -28,38 +28,17 @@ app.use(methodOverride('_method'));
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({
-    extended: true
-}));
-// app.use(function(req, res, next){
-    // console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
-    // console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
-    // console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
-    // console.log(req.path);
-    // let validSession = req.cookies['haveagoodday'];
-    // let validUser = req.cookies['user_id'];
-    // let session = false;
-    // console.log(validSession);
-    // if ( isNaN(validSession) ) {
-    //     if (validSession && validUser) {
-    //         if (hashFunc(validUser + 'logged_id') === validSession) {
-    //             session = true;
-    //         }
-    //     }
-    // }
-    // console.log("session validity : " +session);
-    //
-    // if (session &&  ( req.path === "/gogo" ) ) {
-    //     console.log(req.path);
-    //     console.log("going to gogo");
-    //     next();
-    //     return;
-    // } else if (!session &&  ( req.path === "/gogo" )) {
-    //     console.log("redirect to login");
-    //     res.redirect('./login');
-    //     return;
-    // }
-// });
+app.use(express.urlencoded({extended: true}));
+
+app.use('/gogo', function(request, response, next) {
+    let validSession = request.cookies['haveagoodday'];
+    let validUser = request.cookies['user_id'];
+    if (validSession && (hashFunc(validUser + 'logged_id') === validSession)) {
+        next();
+    } else {
+        response.redirect('./login');
+    }
+});
 
 
 
