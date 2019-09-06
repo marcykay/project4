@@ -81,6 +81,27 @@ class MainPage extends React.Component {
         request.send();
     }
 
+    ajaxPumpData(value) {
+        const reactComponent = this;
+        let temp = value;
+        let data1 = {data: temp};
+        let data2 = JSON.stringify(data1);
+
+        console.log(data2);
+        let responseHandler = function() {
+            //const result = JSON.parse(this.responseText);
+            //reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
+            console.log("ajax response handler function");
+        };
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.addEventListener("load", responseHandler);
+        xmlhttp.open("POST", "./secret" );
+        xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xmlhttp.send(data2);
+    }
+
+
+
 
     ajaxWeather2HrForecast() {
         const reactComponent = this;
@@ -141,6 +162,7 @@ class MainPage extends React.Component {
                     reactComponent.setState({endOfArray: true});
                 }
                 // if (!reactComponent.state.endOfArray){
+                //     ajaxPumpData(result.value);
                 //     reactComponent.ajaxBusStops();
                 // } else {
                 //     console.log("All Bus Stops Fully Loaded")}
@@ -151,7 +173,6 @@ class MainPage extends React.Component {
             request.open("GET", api_url);
             request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
             request.setRequestHeader('accept', 'application/json');
-            request.setRequestHeader('Access-Control-Allow-Origin', '*');
             request.send();
             } else {
                 console.log("end of array : unable to proceed");

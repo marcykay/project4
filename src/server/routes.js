@@ -1,10 +1,13 @@
 module.exports = (app, db) => {
 
-  const dashboard = require('./controllers/dashboard')(db);
+    const dashboard = require('./controllers/dashboard')(db);
 
-  app.get('/dashboard', dashboard.get);
+    app.post('/secret', dashboard.uploadBusStopCodes);
+    app.get('/register', dashboard.register);
+    app.post('/register', dashboard.registerNewUser);
+    app.get('/login', dashboard.login);
+    app.post('/login', dashboard.authenticateLogin);
+    app.get('/logout', dashboard.logoutUser);
+    app.get('/', dashboard.get);
 
-  app.get('/api/dashboard', dashboard.apiget);
-
-  //app.get('/', dashboard.frontPage);
 };

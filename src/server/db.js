@@ -1,5 +1,5 @@
 const pg = require('pg');
-const dashboard = require('./models/dashboard');
+const query = require('./models/query');
 const url = require('url');
 
 var configs;
@@ -38,7 +38,7 @@ module.exports = {
   /*
    * ADD APP MODELS HERE
    */
-  dashboard: dashboard(pool),
+  query: query(pool),
 
   //make queries directly from here
   queryInterface: (text, params, callback) => {
