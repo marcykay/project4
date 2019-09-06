@@ -18,51 +18,64 @@ module.exports = (db) => {
             response.redirect('/gogo');
         } else {
             response.redirect('/login');
+
         }
     };
 
     let login = (request, response) => {
+        console.log("Login Load Function");
         response.render('dashboard/login');
     };
 
     let authenticateLogin = (request, response) => {
+        console.log("Authenticate Login");
         let hashedPW = hashFunc(request.body.password);
         let data = [request.body.username];
         db.query.getUserLogin(data, (error, results) => {
             if (results === null) {
+                console.log("403 - user not found");
                 response.status(403).send("<h2>USER NOT FOUND</h2>");
+                return;
             } else {
                 if (results[0].password === hashedPW) {
                     giveCookie(results[0].id, request.body.username, response);
                     let currentUser = results[0].id;
                     console.log("##### login successful ##### ")
                     response.redirect('/gogo');
+                    return;
                 } else {
                     response.status(403).send("<h2>WRONG PASSWORD</h2>");
+                    console.log("403 - salah password");
+                    return;
                 }
             }
         });
     }
 
     let register = (request, response) => {
+        console.log("Register Load Function");
         response.render('dashboard/register');
     };
 
     let registerNewUser = (request, response) => {
+        console.log("Register New User Function");
         let data = [request.body.username, hashFunc(request.body.password)];
         db.query.addUser(data, (error, results) => {
             if (error !== null) {
                 let errormessage = `<h2>DUPLICATE USERNAME. CHOOSE ANOTHER.</h2><h5>${error.detail}</h5>`;
                 response.status(403).send(errormessage);
+                return;
             } else {
                 giveCookie(results[0].id, request.body.username, response);
                 console.log("##### login successful ##### ")
                 response.redirect('/gogo');
+                return;
             }
         });
     };
 
     let logoutUser = (request, response) => {
+        console.log("Logout Function");
         destroyCookie(response);
         response.redirect('/');
     };
@@ -82,7 +95,6 @@ module.exports = (db) => {
                  });
         });
         response.status(200).send("OK!");
-
     }
 
     // Helper Functions
@@ -91,6 +103,7 @@ module.exports = (db) => {
         response.cookie('haveagoodday', currentSessionCookie);
         response.cookie('user_id', userId);
         response.cookie('username', username);
+        console.log("cookie issued!");
     }
 
     let destroyCookie = function(response) {

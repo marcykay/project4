@@ -20,7 +20,14 @@ class MainPage extends React.Component {
             endOfArray: false,
             busStopCode: "",
             filteredBusStops: [],
+            user: {
+                name : "",
+            },
         };
+    }
+
+    fetchUserPreferences(){
+        this.setState({name: namedocument.cookie.username});
     }
 
     updateInput1(event) {

@@ -31,28 +31,35 @@ app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
-app.use((req, res, next) => {
-    console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
-    console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
-    console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
-    let validSession = req.cookies['haveagoodday'];
-    let validUser = req.cookies['user_id'];
-    let session = false;
-    if (validSession && validUser) {
-        if (hashFunc(validUser + 'logged_id') === validSession) {
-            session = true;
-        }
-    }
-    console.log(session);
-    // if (session) {
-    //     console.log("authentification ok");
-    //     next();
-    // } else {
-    //     console.log("authentification error");
-    //     res.render('dashboard/login')
+// app.use(function(req, res, next){
+    // console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
+    // console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
+    // console.log("()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()");
+    // console.log(req.path);
+    // let validSession = req.cookies['haveagoodday'];
+    // let validUser = req.cookies['user_id'];
+    // let session = false;
+    // console.log(validSession);
+    // if ( isNaN(validSession) ) {
+    //     if (validSession && validUser) {
+    //         if (hashFunc(validUser + 'logged_id') === validSession) {
+    //             session = true;
+    //         }
+    //     }
     // }
-    next();
-});
+    // console.log("session validity : " +session);
+    //
+    // if (session &&  ( req.path === "/gogo" ) ) {
+    //     console.log(req.path);
+    //     console.log("going to gogo");
+    //     next();
+    //     return;
+    // } else if (!session &&  ( req.path === "/gogo" )) {
+    //     console.log("redirect to login");
+    //     res.redirect('./login');
+    //     return;
+    // }
+// });
 
 
 

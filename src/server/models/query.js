@@ -30,6 +30,7 @@ module.exports = (dbPoolInstance) => {
         // values.push(data[0]);
 
         dbPoolInstance.query(query, data, (error, queryResult) => {
+            console.log("query completed");
             if (error) {
                 console.log("error :" + error);
                 callback(error, null);
