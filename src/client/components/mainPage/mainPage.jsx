@@ -4,9 +4,6 @@ import PropTypes from 'prop-types';
 
 import styles from './style.scss';
 
-import Moment from 'react-moment';
-import moment from 'moment';
-
 class MainPage extends React.Component {
     constructor() {
         super();
@@ -21,11 +18,23 @@ class MainPage extends React.Component {
             busStops:[],
             busStopsCounter: 0,
             endOfArray: false,
+            busStopCode: "",
+            filteredBusStops: [],
         };
     }
 
     updateInput1(event) {
         this.setState({input1: event.target.value});
+        let tempStr = event.target.value.toString();
+        console.log(tempStr);
+        let arr = this.state.busStops.filter(function(busStop){
+            return busStop.RoadName.toLowerCase().includes(tempStr) || busStop.Description.toLowerCase().includes(tempStr) || busStop.BusStopCode.includes(tempStr);
+        })
+        this.setState({filteredBusStops: arr});
+        if (arr.length>0) {
+            this.setState({busStopCode: arr[0].BusStopCode});
+        }
+
     }
 
     updateInput2(event) {
@@ -36,20 +45,36 @@ class MainPage extends React.Component {
         this.setState({location: event.target.value});
     }
 
+    updateInput4(event) {
+        this.setState({busStopCode: event.target.value});
+    }
+
+    consolePrint() {
+        console.log(this.state.filteredBusStops);
+    }
+
+    parseTime(estimatedBusArrival) {
+        let timeNow = new Date().getTime();
+        let timeFromAPI = (new Date(estimatedBusArrival)).getTime();
+        let timeDiff = Math.abs(timeFromAPI - timeNow )/1000/60;
+
+        if (timeDiff < 1) {
+            return "ARR";
+        } else if (isNaN(timeDiff)){
+            return "NA"
+        } else {
+            return Math.floor(timeDiff);
+        }
+    }
+
+
     ajaxWeather24HrForecast() {
         const reactComponent = this;
-        var responseHandler = function() {
+        let responseHandler = function() {
             const result = JSON.parse(this.responseText);
-            let arr = result.area_metadata;
-            let locations = [];
-            for (let i in arr) {
-                locations.push(arr[i].name);
-            }
-            // reactComponent.setState({ locations:locations });
             reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
-            console.log(reactComponent.state.weather24HrData);
         };
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.addEventListener("load", responseHandler);
         request.open("GET", "https://api.data.gov.sg/v1/environment/24-hour-weather-forecast?date=2019-09-05" );
         request.setRequestHeader('accept', 'application/json');
@@ -59,7 +84,7 @@ class MainPage extends React.Component {
 
     ajaxWeather2HrForecast() {
         const reactComponent = this;
-        var responseHandler = function() {
+        let responseHandler = function() {
             const result = JSON.parse(this.responseText);
             let arr = result.area_metadata;
             let locations = [];
@@ -68,9 +93,9 @@ class MainPage extends React.Component {
             }
             reactComponent.setState({ locations:locations });
             reactComponent.setState({ weather2HrData:result.items[result.items.length-1] });
-            console.log(reactComponent.state.weather2HrData.forecasts);
+
         };
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.addEventListener("load", responseHandler);
         request.open("GET", "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date=2019-09-05" );
         request.setRequestHeader('accept', 'application/json');
@@ -79,63 +104,58 @@ class MainPage extends React.Component {
 
     ajaxBusArrival() {
         const reactComponent = this;
-        var responseHandler = function() {
+        let responseHandler = function() {
             const result = JSON.parse(this.responseText);
+            result.Services.sort( (a,b) => (parseInt(a.ServiceNo) > parseInt(b.ServiceNo) ) ? 1: -1 );
             reactComponent.setState({ data:result });
-            console.log(reactComponent.state.data.Services);
+            console.log("BUSES AVAILABLE: ", reactComponent.state.data);
         };
-        var request = new XMLHttpRequest();
-        var api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+this.state.input1;
-        var api_url2 = "&ServiceNo="+this.state.input2;
+        let request = new XMLHttpRequest();
+        let api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+reactComponent.state.busStopCode;
         if (this.state.input2) {
+            let api_url2 = "&ServiceNo="+this.state.input2;
             api_url1 = api_url1+api_url2;
         }
         request.addEventListener("load", responseHandler);
         request.open("GET", api_url1 );
         request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
         request.setRequestHeader('accept', 'application/json');
-        request.setRequestHeader('Access-Control-Allow-Origin', '*');
         request.send();
-        //http://datamall2.mytransport.sg/ltaodataservice/BusStops
+
     }
+    //objs.sort((a,b) => (a.last_nom > b.last_nom) ? 1 : ((b.last_nom > a.last_nom) ? -1 : 0));
 
     ajaxBusStops() {
         const reactComponent = this;
         let skip = "";
         if (!reactComponent.state.endOfArray) {
-
-        if (this.state.busStopsCounter > 0) {
-            skip = "?$skip=" + this.state.busStopsCounter*500;
-        }
-
-        var responseHandler = function() {
-            const result = JSON.parse(this.responseText);
-            reactComponent.setState({ busStops:reactComponent.state.busStops.concat(result.value) });
-            console.log(reactComponent.state.busStops);
-            reactComponent.setState({busStopsCounter: reactComponent.state.busStopsCounter+1});
-            console.log(reactComponent.state.busStopsCounter);
-            if (result.value.length===0) {
-                console.log(result.value.length);
-                reactComponent.setState({endOfArray: true});
+            if (this.state.busStopsCounter > 0) {
+                skip = "?$skip=" + this.state.busStopsCounter*500;
             }
-            if (!reactComponent.state.endOfArray){
-                console.log("recursive call");
-                reactComponent.ajaxBusStops();
-            } else {console.log("hurray!")}
-
-        };
-        var request = new XMLHttpRequest();
-        var api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusStops" + skip;
-        console.log(api_url);
-        request.addEventListener("load", responseHandler);
-        request.open("GET", api_url);
-
-        request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
-        request.setRequestHeader('accept', 'application/json');
-        request.setRequestHeader('Access-Control-Allow-Origin', '*');
-        request.send();
-        } else {
-            console.log("unable to proceed")
+            let responseHandler = function() {
+                const result = JSON.parse(this.responseText);
+                reactComponent.setState({busStops: reactComponent.state.busStops.concat(result.value) });
+                reactComponent.setState({busStopsCounter: reactComponent.state.busStopsCounter+1});
+                console.log(reactComponent.state.busStops);
+                if (result.value.length===0) {
+                    reactComponent.setState({endOfArray: true});
+                }
+                // if (!reactComponent.state.endOfArray){
+                //     reactComponent.ajaxBusStops();
+                // } else {
+                //     console.log("All Bus Stops Fully Loaded")}
+            };
+            let request = new XMLHttpRequest();
+            let api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusStops" + skip;
+            request.addEventListener("load", responseHandler);
+            request.open("GET", api_url);
+            request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
+            request.setRequestHeader('accept', 'application/json');
+            request.setRequestHeader('Access-Control-Allow-Origin', '*');
+            request.send();
+            } else {
+                console.log("end of array : unable to proceed");
+                console.log(reactComponent.state.busStops);
         }
     }
 
@@ -144,19 +164,19 @@ class MainPage extends React.Component {
         console.log('rendering mainPage.jsx');
         const date = new Date();
         if (this.state.data.Services) {
-
             returnBus = this.state.data.Services.map((bus, index)=>{
                 return (
                     <div key={index}>
                         <p>BUS NO: {bus.ServiceNo}</p>
-                        <span>NEXT BUS:  <Moment diff={date} unit="minutes">{bus.NextBus.EstimatedArrival}</Moment></span>
-                        <span>,  <Moment diff={date} unit="minutes">{bus.NextBus2.EstimatedArrival}</Moment></span>
-                        <span>,  <Moment diff={date} unit="minutes">{bus.NextBus3.EstimatedArrival}</Moment></span>
+                        <span>NEXT BUS:  {this.parseTime(bus.NextBus.EstimatedArrival)}</span>
+                        <span>,  {this.parseTime(bus.NextBus2.EstimatedArrival)}</span>
+                        <span>,  {this.parseTime(bus.NextBus3.EstimatedArrival)}</span>
                     </div>
                 );
             });
         }
 
+        // selector for weather locations
         let selectorForm = "";
         let forecast2HrWeather = "";
         let forecast24HrWeather = ""
@@ -180,6 +200,27 @@ class MainPage extends React.Component {
 
         }
 
+        //selector for bus stops
+        let selectorBusStops = "";
+        if (this.state.filteredBusStops.length > 0) {
+
+            let busStopOption = "";
+            busStopOption = this.state.filteredBusStops.map( (busStop, index)=>{
+                return (
+                    <option key={index} value={busStop.BusStopCode}>{busStop.BusStopCode}, {busStop.Description}, {busStop.RoadName}</option>
+                );
+            });
+
+            selectorBusStops = (
+                <label>Select your location
+                    <select  onChange={(event)=>this.updateInput4(event)}>
+                    {busStopOption}
+                    </select>
+                </label>
+            );
+
+        }
+
         if (this.state.weather2HrData) {
             for (let i = 0; i < this.state.weather2HrData.forecasts.length; i++){
                 if (this.state.weather2HrData.forecasts[i].area === this.state.location){
@@ -187,36 +228,25 @@ class MainPage extends React.Component {
                     break;
                 }
             }
-            console.log(forecast2HrWeather);
         }
 
         if (this.state.weather24HrData) {
-
-
             forecast24HrWeather = (
                 <div>
                     <p>Forecast: {this.state.weather24HrData.general.forecast}</p>
                     <p>Temperature: {this.state.weather24HrData.general.temperature.high} / {this.state.weather24HrData.general.temperature.low}</p>
                 </div>
                 );
-
-
-
-            console.log(forecast24HrWeather);
-
         }
-
-
 
         return (
             <div>
-            <h2 className={styles.desc}>
-                MainPage Reporting
-            </h2>
             <p>
                 <input type="text" onChange={(event)=>this.updateInput1(event)} value={this.state.input1} />76209</p>
             <p>
                 <input type="text" onChange={(event)=>this.updateInput2(event)} value={this.state.input2} />21</p>
+            <p>
+                <input type="text" value={this.state.busStopCode} />bus stop code from selector</p>
             <button onClick={()=>this.ajaxBusArrival()}>Load Bus Arrival
             </button>
             <button onClick={()=>this.ajaxBusStops()}>Bus Stops
@@ -225,9 +255,9 @@ class MainPage extends React.Component {
             </button>
             <button onClick={()=>this.ajaxWeather24HrForecast()}>Load 24hr Weather Forecast
             </button>
-            <p>
-            <Moment toNow>{date}</Moment>
-            </p>
+            <button onClick={()=>this.consolePrint()}>CONSOLE LOG
+            </button>
+            <p>{selectorBusStops}</p>
                 {returnBus}
 
                 <div>
@@ -241,7 +271,6 @@ class MainPage extends React.Component {
                     {forecast24HrWeather}
                 </div>
             </div>
-
         );
     }
 }

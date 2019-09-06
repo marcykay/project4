@@ -19,5 +19,5 @@ module.exports = function setup(app) {
   app.use(webpackHotMiddleware(compiler));
 
   // all other requests be handled by UI itself
-  app.get('*', (req, res) => res.sendFile(resolve(__dirname, '..', '..', '..', 'build-dev', 'client', 'index.html')));
+  // app.get('*', (req, res) => res.sendFile(resolve(__dirname, '..', '..', '..', 'build-dev', 'client', 'index.html')));
 };

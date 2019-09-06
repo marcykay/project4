@@ -9,5 +9,5 @@ module.exports = function setup(app) {
   app.use('/', express.static(clientBuildPath));
 
   // all other requests be handled by UI itself
-  app.get('*', (req, res) => res.sendFile(resolve(clientBuildPath, 'index.html')));
+  //app.get('*', (req, res) => res.sendFile(resolve(clientBuildPath, 'index.html')));
 };

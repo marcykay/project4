@@ -15,7 +15,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <h3>Welcome</h3>
+        <h3>Have A Good Day!</h3>
         <MainPage />
       </div>
     );

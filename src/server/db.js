@@ -1,5 +1,5 @@
 const pg = require('pg');
-const pokemon = require('./models/pokemon');
+const dashboard = require('./models/dashboard');
 const url = require('url');
 
 var configs;
@@ -38,7 +38,7 @@ module.exports = {
   /*
    * ADD APP MODELS HERE
    */
-  pokemon: pokemon(pool),
+  dashboard: dashboard(pool),
 
   //make queries directly from here
   queryInterface: (text, params, callback) => {

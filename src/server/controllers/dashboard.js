@@ -13,30 +13,30 @@ module.exports = (db) => {
 
     let get = (request, response) => {
 
-        // use pokemon model method `get` to retrieve pokemon data
+        // use dashboard model method `get` to retrieve dashboard data
         console.log(db)
 
-        db.pokemon.get(request.params.id, (error, pokemon) => {
-            // queryResult contains pokemon data returned from the pokemon model
+        db.dashboard.get(request.params.id, (error, dashboard) => {
+            // queryResult contains dashboard data returned from the dashboard model
             if (error) {
 
-                console.error('error getting pokemon', error);
+                console.error('error getting dashboard', error);
                 response.status(500);
                 response.send('server error');
 
             } else {
 
-                if (pokemon === null) {
+                if (dashboard === null) {
 
-                    // render pokemon view in the pokemon folder
+                    // render dashboard view in the dashboard folder
                     response.status(404);
                     response.send('not found');
 
                 } else {
 
-                    // render pokemon view in the pokemon folder
-                    response.render('pokemon/show', {
-                        pokemon: pokemon
+                    // render dashboard view in the dashboard folder
+                    response.render('dashboard/show', {
+                        dashboard: dashboard
                     });
 
                 }

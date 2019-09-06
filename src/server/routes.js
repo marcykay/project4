@@ -1,10 +1,10 @@
 module.exports = (app, db) => {
 
-  const pokemon = require('./controllers/pokemon')(db);
+  const dashboard = require('./controllers/dashboard')(db);
 
-  app.get('/pokemon/:id', pokemon.get);
+  app.get('/dashboard', dashboard.get);
 
-  app.get('/api/pokemon/:id', pokemon.apiget);
+  app.get('/api/dashboard', dashboard.apiget);
 
-  //app.get('/', pokemon.frontPage);
+  //app.get('/', dashboard.frontPage);
 };
