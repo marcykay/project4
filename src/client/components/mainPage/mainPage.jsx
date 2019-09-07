@@ -2,6 +2,7 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
+import SettingsTile from '../settingsTile/settingsTile';
 import TimeTile from '../timeTile/timeTile';
 import BusTile from '../BusTile/BusTile';
 import styles from './style.scss';
@@ -31,6 +32,15 @@ class MainPage extends React.Component {
             busPref: [],
         };
     }
+
+    componentDidMount() {
+        //this.getCoordinates();
+    }
+
+    componentWillUnmount() {
+
+    }
+
 
     fetchUserName() {
         let stringArr = document.cookie.split('=');
@@ -398,7 +408,7 @@ class MainPage extends React.Component {
 
         return (
             <div>
-
+                <SettingsTile />
                 <TimeTile />
                 <BusTile busPref={this.state.busPref}/>
 
