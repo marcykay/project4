@@ -2,7 +2,11 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
+import TimeTile from '../timeTile/timeTile';
+import BusTile from '../BusTile/BusTile';
 import styles from './style.scss';
+
+
 
 class MainPage extends React.Component {
     constructor() {
@@ -23,6 +27,7 @@ class MainPage extends React.Component {
             filteredBusStops: [],
             latitude: "",
             longitude: "",
+            time: ""
         };
     }
 
@@ -43,11 +48,10 @@ class MainPage extends React.Component {
             let crd = pos.coords;
             console.log('Your current position is:');
             console.log(`Latitude : ${crd.latitude}`);
-            reactComponent.setState({latitude : crd.latitude})
             console.log(`Longitude: ${crd.longitude}`);
+            console.log(`More or less ${crd.accuracy} meters`);
+            reactComponent.setState({latitude : crd.latitude})
             reactComponent.setState({longitude : crd.longitude})
-
-            console.log(`More or less ${crd.accuracy} meters.`);
         }
 
         function error(err) {
@@ -92,6 +96,28 @@ class MainPage extends React.Component {
         console.log(this.state.filteredBusStops);
     }
 
+    calcTime(result) {
+
+        var d = new Date();
+        var n = d.getTimezoneOffset()/60;
+
+
+        // create Date object for current location
+        var d = new Date();
+
+        // convert to msec
+        // add local time zone offset
+        // get UTC time in msec
+        var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+        // create new Date object for different city
+        // using supplied offset
+        var nd = new Date(utc + (3600000*offset));
+
+        // return time as a string
+        return "The local time in " + city + " is " + nd.toLocaleString();
+    }
+
     parseTime(estimatedBusArrival) {
         let timeNow = new Date().getTime();
         let timeFromAPI = (new Date(estimatedBusArrival)).getTime();
@@ -104,6 +130,30 @@ class MainPage extends React.Component {
         } else {
             return Math.floor(timeDiff);
         }
+    }
+
+//https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=today
+
+    ajaxSunriseSunset() {
+        const reactComponent = this;
+        if (reactComponent.state.latitude !== "") {
+            let api_url = "https://api.sunrise-sunset.org/json?lat=" + reactComponent.state.latitude + "&lng=" + reactComponent.state.longitude + "&date=today";
+            console.log(api_url);
+            let responseHandler = function() {
+                const result = JSON.parse(this.responseText);
+                console.log(result);
+                this.calcTime(result);
+                //reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
+            };
+            let request = new XMLHttpRequest();
+            request.addEventListener("load", responseHandler);
+            request.open("GET", api_url);
+            request.setRequestHeader('accept', 'application/json');
+            request.send();
+        } else {
+            console.log("NO Coordinates data detected");
+        }
+
     }
 
 
@@ -250,7 +300,7 @@ class MainPage extends React.Component {
     render() {
         let returnBus = "";
         console.log('rendering mainPage.jsx');
-        const date = new Date();
+        // const date = new Date();
         if (this.state.data.Services) {
             returnBus = this.state.data.Services.map((bus, index)=>{
                 return (
@@ -329,36 +379,46 @@ class MainPage extends React.Component {
 
         return (
             <div>
-            <p>
-            <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names
-            <input type="text" onChange={ (event)=>this.updateInput5(event) } value={this.state.input5} />Bus Service Nos
-            </p>
-            <p>
-                <input type="text" onChange={ (event)=>this.updateInput2(event) } value={this.state.input2} />service no</p>
-            <p>
-                <input type="text" value={this.state.busStopCode} />bus stop code</p>
 
-            <button onClick={()=>this.ajaxBusArrival()}>
-            Load Bus Arrival
-            </button>
-            <button onClick={()=>this.ajaxBusStops()}>
-            Bus Stops
-            </button>
-            <button onClick={()=>this.ajaxWeather2HrForecast()}>
-            Load 2hr Weather Forecast
-            </button>
-            <button onClick={()=>this.ajaxWeather24HrForecast()}>
-            Load 24hr Weather Forecast
-            </button>
-            <button onClick={()=>this.ajaxAddBusPreference()}>
-            Add Bus Preference
-            </button>
-            <button onClick={()=>this.getCoordinates()}>
-            Load Coordinates
-            </button>
+                <TimeTile />
+                <BusTile />
 
-            <p>{selectorBusStops}</p>
-                {returnBus}
+                <p>
+                    <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names
+                    <input type="text" onChange={ (event)=>this.updateInput5(event) } value={this.state.input5} />Bus Service Nos
+                </p>
+                <p>
+                    <input type="text" onChange={ (event)=>this.updateInput2(event) } value={this.state.input2} />service no
+                </p>
+                <p>
+                    <input type="text" value={this.state.busStopCode} />bus stop code
+                </p>
+
+                <button onClick={()=>this.ajaxBusArrival()}>
+                Load Bus Arrival
+                </button>
+                <button onClick={()=>this.ajaxBusStops()}>
+                Bus Stops
+                </button>
+                <button onClick={()=>this.ajaxWeather2HrForecast()}>
+                Load 2hr Weather Forecast
+                </button>
+                <button onClick={()=>this.ajaxWeather24HrForecast()}>
+                Load 24hr Weather Forecast
+                </button>
+                <button onClick={()=>this.ajaxAddBusPreference()}>
+                Add Bus Preference
+                </button>
+                <button className="blueThing" onClick={()=>this.getCoordinates()}>
+                Load Coordinates
+                </button>
+                <button onClick={()=>this.ajaxSunriseSunset()}>
+                Sunrise Sunset
+                </button>
+
+
+                <p>{selectorBusStops}</p>
+                    {returnBus}
 
                 <div>
                     {selectorForm}

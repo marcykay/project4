@@ -3,6 +3,7 @@ const express = require('express');
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 const db = require('./db');
+const path = require('path');
 const hashFunc = require('js-sha256');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -26,7 +27,10 @@ app.set('env', process.env.NODE_ENV);
 // Set up middleware
 app.use(methodOverride('_method'));
 app.use(cookieParser());
-app.use(express.static('public'));
+
+//app.use(express.static('public'));
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
