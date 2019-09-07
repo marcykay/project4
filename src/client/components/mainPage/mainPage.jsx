@@ -27,7 +27,8 @@ class MainPage extends React.Component {
             filteredBusStops: [],
             latitude: "",
             longitude: "",
-            time: ""
+            time: "",
+            busPref: [],
         };
     }
 
@@ -186,6 +187,24 @@ class MainPage extends React.Component {
         xmlhttp.open("POST", "./data/buspreference" );
         xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xmlhttp.send(data2);
+    }
+
+    ajaxGetBusPreference() {
+        const reactComponent = this;
+        let data = {username: reactComponent.fetchUserName()};
+        console.log(data);
+        let responseHandler = function() {
+            console.log("ajax getbus preference");
+            console.log(this.response);
+            const result = JSON.parse(this.responseText);
+            reactComponent.setState({ busPref: result.results });
+            console.dir(reactComponent.state.busPref);
+        };
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.addEventListener("load", responseHandler);
+        xmlhttp.open("GET", "./data/"+reactComponent.fetchUserName() );
+        xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xmlhttp.send(JSON.stringify(data));
     }
 
     ajaxPumpData(value) {
@@ -381,7 +400,7 @@ class MainPage extends React.Component {
             <div>
 
                 <TimeTile />
-                <BusTile />
+                <BusTile busPref={this.state.busPref}/>
 
                 <p>
                     <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names
@@ -415,6 +434,10 @@ class MainPage extends React.Component {
                 <button onClick={()=>this.ajaxSunriseSunset()}>
                 Sunrise Sunset
                 </button>
+                <button onClick={()=>this.ajaxGetBusPreference()}>
+                ajaxGetBusPreference
+                </button>
+
 
 
                 <p>{selectorBusStops}</p>

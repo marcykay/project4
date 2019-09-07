@@ -75,11 +75,27 @@ module.exports = (dbPoolInstance) => {
         });
     };
 
+    let getBusPreference = (values, callback) => {
+        let query = 'SELECT * FROM bus_preference WHERE username=($1)';
+        dbPoolInstance.query(query, values, (error, queryResult) => {
+            if (error) {
+                callback(error, null);
+            } else {
+                if (queryResult.rows.length > 0) {
+                    callback(null, queryResult.rows);
+                } else {
+                    callback(null, null);
+                }
+            }
+        });
+    }
+
     return {
         addData,
         addUser,
         getUserLogin,
         addBusPreference,
+        getBusPreference
     };
 };
 

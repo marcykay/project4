@@ -97,8 +97,6 @@ module.exports = (db) => {
         console.log(request.body);
         let values = [request.body.username, request.body.busstopcode, request.body.serviceno ];
         db.query.addBusPreference(values, (error, allResults) => {
-
-            console.log("88888888888888888888888888888888888888");
             console.log(error);
             if (error === null) {
                 console.log(error);
@@ -113,6 +111,30 @@ module.exports = (db) => {
             }
         })
     }
+
+    let getBusPreference = function(request, response) {
+        console.log(request.params);
+        console.log("88888888888888888888888888888888888888");
+        console.log("88888888888888888888888888888888888888");
+        let values = [request.params.user];
+        db.query.getBusPreference(values, (error, allResults) => {
+            console.log("88888888888888888888888888888888888888");
+            console.log("1111111111111111111111111111111111111111");
+            console.log(error);
+            if (error === null) {
+                console.log(error);
+                console.log("88888888888888888888888888888888888888");
+                console.log("444444444444444444444444444444444444");
+                let data = {'results': allResults};
+                console.log(JSON.stringify(data));
+                response.status(200).send(JSON.stringify(data));
+            } else {
+                let errormessage = `<h2>Error!</h2><h5>${error.detail}</h5>`;
+                response.status(406).send(errormessage);
+            }
+        })
+    }
+
 
     // Helper Functions
     function giveCookie(userId, username, response) {
@@ -148,6 +170,7 @@ module.exports = (db) => {
         logoutUser: logoutUser,
         uploadBusStopCodes: uploadBusStopCodes,
         addBusPreference: addBusPreference,
+        getBusPreference: getBusPreference,
     }
 
 };
