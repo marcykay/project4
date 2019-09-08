@@ -76,6 +76,15 @@ class MainPage extends React.Component {
 
     }
 
+    findBusInfo(code) {
+        let tempStr = code.toString();
+        console.log(tempStr);
+        let arr = this.state.busStops.filter(function(busStop){
+            return busStop.RoadName.toLowerCase().includes(tempStr) || busStop.Description.toLowerCase().includes(tempStr) || busStop.BusStopCode.includes(tempStr);
+        })
+        console.log(arr[0]);
+        return arr[0];
+    }
 
     updateInput2(event) {
         this.setState({input2: event.target.value});
@@ -172,33 +181,28 @@ class MainPage extends React.Component {
         request.send();
     }
 
+// ---------------------  OK  ---------------------
     ajaxAddBusPreference() {
         const reactComponent = this;
-        let data1 = {username: this.fetchUserName(), busstopcode: reactComponent.state.busStopCode, serviceno: reactComponent.state.input5};
-        let data2 = JSON.stringify(data1);
-        console.log(data2);
+        let busStopInfo = this.findBusInfo(reactComponent.state.busStopCode);
+        let data = {username: this.fetchUserName(), busstopcode: reactComponent.state.busStopCode, serviceno: reactComponent.state.input5, roadname: busStopInfo.RoadName, description: busStopInfo.Description, latitude: busStopInfo.Latitude, longitude:busStopInfo.Longitude};
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
-            reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
-            console.log("ajax response handler function");
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
         xmlhttp.open("POST", "./data/buspreference" );
         xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xmlhttp.send(data2);
+        xmlhttp.send(JSON.stringify(data));
     }
 
     ajaxGetBusPreference() {
         const reactComponent = this;
         let data = {username: reactComponent.fetchUserName()};
-        console.log(data);
         let responseHandler = function() {
-            console.log("ajax getbus preference");
-            console.log(this.response);
             const result = JSON.parse(this.responseText);
             reactComponent.setState({ busPref: result.results });
-            console.dir(reactComponent.state.busPref);
+            console.log(reactComponent.state.busPref);
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
@@ -206,6 +210,37 @@ class MainPage extends React.Component {
         xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xmlhttp.send(JSON.stringify(data));
     }
+
+    getBusArrival(index, bus_stop_code, service_no) {
+        const reactComponent = this;
+        let responseHandler = function() {
+            const result = JSON.parse(this.responseText);
+            // result.Services.sort( (a,b) => (parseInt(a.ServiceNo) > parseInt(b.ServiceNo) ) ? 1: -1 );
+            // reactComponent.setState({ data:result });
+            console.log("return bus arrival info: ", result.Services[0]);
+            console.log("state: ", reactComponent.state.busPref[index]);
+            console.log("------------------------------")
+            var obj = Object.assign({}, result.Services[0], reactComponent.state.busPref[index]);
+            let arr = reactComponent.state.busPref;
+            arr[index] = obj;
+            console.log(arr);
+            reactComponent.setState({ busPref : arr})
+            console.log("result state: ", reactComponent.state.busPref);
+        };
+        let request = new XMLHttpRequest();
+        let api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+bus_stop_code;
+        if (service_no) {
+            let api_url2 = "&ServiceNo="+service_no;
+            api_url1 = api_url1+api_url2;
+        }
+        request.addEventListener("load", responseHandler);
+        request.open("GET", api_url1 );
+        request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
+        request.setRequestHeader('accept', 'application/json');
+        request.send();
+
+    }
+// ---------------------  OK  ---------------------
 
     ajaxPumpData(value) {
         const reactComponent = this;
@@ -281,6 +316,9 @@ class MainPage extends React.Component {
 
     }
     //objs.sort((a,b) => (a.last_nom > b.last_nom) ? 1 : ((b.last_nom > a.last_nom) ? -1 : 0));
+
+
+
 
     ajaxBusStops() {
         const reactComponent = this;
@@ -364,7 +402,7 @@ class MainPage extends React.Component {
             let busStopOption = "";
             busStopOption = this.state.filteredBusStops.map( (busStop, index)=>{
                 return (
-                    <option key={index} value={busStop.BusStopCode}>{busStop.BusStopCode}, {busStop.Description}, {busStop.RoadName}</option>
+                    <option key={index} value={busStop.BusStopCode}> {busStop.BusStopCode}, {busStop.Description}, {busStop.RoadName} </option>
                 );
             });
 
@@ -396,11 +434,26 @@ class MainPage extends React.Component {
                 );
         }
 
+        let busInfo = "";
+        // busInfo = (this.state.busPref.length > 0) ? (
+        //            <BusTile busPref={this.state.busPref[0]} />
+        //        ) : "";
+        if (this.state.busPref.length > 0) {
+            busInfo = this.state.busPref.map((item,index)=>{
+                return (<BusTile busPref={this.state.busPref[index]} />)
+            })
+        }
+
+
+
+
         return (
+
+
             <div>
 
                 <TimeTile />
-                <BusTile busPref={this.state.busPref}/>
+                {busInfo}
 
                 <p>
                     <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names

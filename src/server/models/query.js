@@ -59,7 +59,7 @@ module.exports = (dbPoolInstance) => {
         console.log("...");
         console.log("adding bus preference..................");
         console.log(values);
-        let query = 'INSERT INTO bus_preference (username, busstopcode, serviceno) values ($1, $2, $3) returning *';
+        let query = 'INSERT INTO bus_preference (username, busstopcode, serviceno, roadname, description, latitude, longitude) values ($1, $2, $3, $4, $5, $6, $7) returning *';
         dbPoolInstance.query(query, values, (error, queryResult) => {
             if (error) {
                 console.log("error in database");

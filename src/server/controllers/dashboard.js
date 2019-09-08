@@ -95,7 +95,7 @@ module.exports = (db) => {
 
     let addBusPreference = function(request, response) {
         console.log(request.body);
-        let values = [request.body.username, request.body.busstopcode, request.body.serviceno ];
+        let values = [request.body.username, request.body.busstopcode, request.body.serviceno, request.body.roadname, request.body.description, request.body.latitude, request.body.longitude ];
         db.query.addBusPreference(values, (error, allResults) => {
             console.log(error);
             if (error === null) {

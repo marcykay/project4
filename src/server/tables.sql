@@ -10,7 +10,11 @@ CREATE TABLE IF NOT EXISTS bus_preference (
     id SERIAL PRIMARY KEY,
     username TEXT REFERENCES users(name),
     busstopcode TEXT,
-    serviceNo TEXT
+    serviceno TEXT,
+    roadname TEXT,
+    description TEXT,
+    latitude TEXT,
+    longitude TEXT
 );
 
 -- create location preference table
