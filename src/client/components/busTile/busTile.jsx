@@ -122,13 +122,44 @@ class BusTile extends React.Component {
 
 
     componentDidMount() {
-        this.getBusArrival()
+        // this.getBusArrival();
         //this.interval = setInterval(() => this.getBusArrival(), 30000);
     }
 
     componentWillUnmount() {
-        clearInterval(this.interval);
+        //clearInterval(this.interval);
     }
+
+    distance(lon1, lat1, lon2, lat2) {
+        let R = 6371; // Radius of the earth in km
+        let dLat = (lat2-lat1)* Math.PI / 180;  // Javascript functions in radians
+        let dLon = (lon2-lon1)* Math.PI / 180;
+        let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1* Math.PI / 180) * Math.cos(lat2* Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        let d = R * c ; // Distance in km
+        let time = d*1000/1.25/60;
+        if (time < 1) {
+            time = "< 2mins walk";
+        } else if (time < 10) {
+            time = Math.ceil(time);
+            time = "~"+time+"mins walk";
+        }
+        if (d < 2) {
+            d = (Math.round(d*1000));
+            return d+"m, "+time;
+        } else if (d < 10) {
+            d = (Math.round(d*100))/100;
+            return d+"km";
+        } else {
+            d = (Math.round(d*10))/10;
+            return d+"km";
+        }
+        return d;
+    }
+
+
 
     getBusArrival() {
         const reactComponent = this;
@@ -204,6 +235,8 @@ class BusTile extends React.Component {
 
 
     render() {
+        let d = this.distance(this.props.longitude, this.props.latitude,  this.props.busPref.longitude, this.props.busPref.latitude);
+
         let nextBus = "";
         let nextBus2 = "";
         let nextBus3 = "";
@@ -217,7 +250,7 @@ class BusTile extends React.Component {
         let busLoad2 = "";
         let busLoad3 = "";
 
-        if (this.state.data.NextBus) {
+        if (this.state.data.length > 0) {
             // console.log("------------------------------------")
             // console.log(this.parseTime(this.state.data.NextBus.EstimatedArrival));
             nextBus = this.parseTime(this.state.data.NextBus.EstimatedArrival);
@@ -236,7 +269,7 @@ class BusTile extends React.Component {
 
         return (
             <div className={styles.busTile}>
-                <p><span><b>{this.props.busPref.description}</b> </span>|<span> {this.props.busPref.roadname} </span>|<small> {this.props.busPref.busstopcode} </small></p>
+                <p><span><b>{this.props.busPref.description}</b> </span>|<span> {this.props.busPref.roadname} </span>|<small> {this.props.busPref.busstopcode}, {d} </small></p>
                 <div className={styles.arrival_container}>
                     <div className={styles.serviceNo}><div>{this.props.busPref.serviceno}</div></div>
                     <div className={styles.arrivalTag}>{nextBus}</div>

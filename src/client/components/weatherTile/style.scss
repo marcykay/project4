@@ -1,21 +1,18 @@
-.name{
-  padding:5px;
-  margin:20px;
-}
 .weatherTile {
-    background-color: rgba(50,50,50,0.2);
+    background-color: rgba(150,150,150,0.4);
 	padding: 10px;
 	margin: 10px;
 	border-radius: 15px;
-	-webkit-backdrop-filter: blur(1px);
-	backdrop-filter: blur(1px);
-	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.3);
+	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.4);
 	text-shadow:
     0 0 5px #fff,
     0 0 10px #fff;
     display: flex;
     flex-direction: row;
     justify-content: center;
+}
+div>.weatherTile:hover {
+   	box-shadow: 2px 2px 1px 1px rgba(50,50,50,0.4);
 }
 .one_third {
     color: white;
@@ -24,9 +21,9 @@
     justify-content: center;
     align-items: center;
     align-content: center;
-    width:200px;
+    width:220px;
     height:120px;
     margin:0;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 2.0em;
 }

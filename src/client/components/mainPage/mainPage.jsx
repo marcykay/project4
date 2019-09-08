@@ -2,6 +2,7 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
+import SettingsPage from '../settingsPage/settingsPage';
 import WeatherTile from '../weatherTile/weatherTile';
 import TimeTile from '../timeTile/timeTile';
 import BusTile from '../busTile/busTile';
@@ -175,28 +176,14 @@ class MainPage extends React.Component {
 
     }
 
-
-    ajaxWeather24HrForecast() {
-        const reactComponent = this;
-        let date = this.getDateYYYYMMDD();
-        let responseHandler = function() {
-            const result = JSON.parse(this.responseText);
-            reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
-        };
-        let request = new XMLHttpRequest();
-        request.addEventListener("load", responseHandler);
-        request.open("GET", "https://api.data.gov.sg/v1/environment/24-hour-weather-forecast?date="+date );
-        request.setRequestHeader('accept', 'application/json');
-        request.send();
-    }
-
 // ---------------------  OK  ---------------------
     ajaxAddBusPreference() {
         const reactComponent = this;
         let busStopInfo = this.findBusInfo(reactComponent.state.busStopCode);
         let data = {username: this.fetchUserName(), busstopcode: reactComponent.state.busStopCode, serviceno: reactComponent.state.input5, roadname: busStopInfo.RoadName, description: busStopInfo.Description, latitude: busStopInfo.Latitude, longitude:busStopInfo.Longitude};
         let responseHandler = function() {
-            const result = JSON.parse(this.responseText);
+            // const result = JSON.parse(this.responseText);
+            ajaxGetBusPreference();
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
@@ -380,30 +367,6 @@ class MainPage extends React.Component {
             });
         }
 
-        // selector for weather locations
-        let selectorForm = "";
-        let forecast2HrWeather = "";
-        let forecast24HrWeather = ""
-
-        if (this.state.locations.length > 0) {
-
-            let locationSelector = "";
-            locationSelector = this.state.locations.map( (loc, index)=>{
-                return (
-                    <option key={index} data-index={index} value={loc}>{loc}</option>
-                );
-            });
-
-            selectorForm = (
-                <label>Select your location
-                <select value={this.state.location} onChange={(event)=>this.updateInput3(event)}>
-                {locationSelector}
-                </select>
-                </label>
-            );
-
-        }
-
         //selector for bus stops
         let selectorBusStops = "";
         if (this.state.filteredBusStops.length > 0) {
@@ -425,31 +388,14 @@ class MainPage extends React.Component {
 
         }
 
-        if (this.state.weather2HrData) {
-            for (let i = 0; i < this.state.weather2HrData.forecasts.length; i++){
-                if (this.state.weather2HrData.forecasts[i].area === this.state.location){
-                    forecast2HrWeather = this.state.weather2HrData.forecasts[i].forecast;
-                    break;
-                }
-            }
-        }
-
-        if (this.state.weather24HrData) {
-            forecast24HrWeather = (
-                <div>
-                    <p>Forecast: {this.state.weather24HrData.general.forecast}</p>
-                    <p>Temperature: {this.state.weather24HrData.general.temperature.high} / {this.state.weather24HrData.general.temperature.low}</p>
-                </div>
-                );
-        }
-
         let busInfo = "";
         // busInfo = (this.state.busPref.length > 0) ? (
         //            <BusTile busPref={this.state.busPref[0]} />
         //        ) : "";
         if (this.state.busPref.length > 0) {
             busInfo = this.state.busPref.map((item,index)=>{
-                return (<BusTile busPref={this.state.busPref[index]} />)
+                console.log(item);
+                return (<BusTile busPref={this.state.busPref[index]} latitude={this.state.latitude} longitude={this.state.longitude}/>)
             })
         }
 
@@ -457,7 +403,10 @@ class MainPage extends React.Component {
 
 
         return (
-
+//
+// <p>
+//     <input type="text" onChange={ (event)=>this.updateInput2(event) } value={this.state.input2} />service no
+// </p>
 
             <div>
 
@@ -465,13 +414,12 @@ class MainPage extends React.Component {
                 <WeatherTile />
                 {busInfo}
 
+
                 <p>
                     <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names
                     <input type="text" onChange={ (event)=>this.updateInput5(event) } value={this.state.input5} />Bus Service Nos
                 </p>
-                <p>
-                    <input type="text" onChange={ (event)=>this.updateInput2(event) } value={this.state.input2} />service no
-                </p>
+
                 <p>
                     <input type="text" value={this.state.busStopCode} />bus stop code
                 </p>
@@ -482,17 +430,9 @@ class MainPage extends React.Component {
                 <button onClick={()=>this.ajaxBusStops()}>
                 Bus Stops
                 </button>
-                <button onClick={()=>this.ajaxWeather2HrForecast()}>
-                Load 2hr Weather Forecast
-                </button>
-                <button onClick={()=>this.ajaxWeather24HrForecast()}>
-                Load 24hr Weather Forecast
-                </button>
+
                 <button onClick={()=>this.ajaxAddBusPreference()}>
                 Add Bus Preference
-                </button>
-                <button className="blueThing" onClick={()=>this.getCoordinates()}>
-                Load Coordinates
                 </button>
                 <button onClick={()=>this.ajaxSunriseSunset()}>
                 Sunrise Sunset
@@ -506,20 +446,9 @@ class MainPage extends React.Component {
                 <p>{selectorBusStops}</p>
                     {returnBus}
 
-                <div>
-                    {selectorForm}
-                </div>
-                <div>
-                    <h3>Forecast 2hr</h3>
-                    <p>Location:{this.state.location}</p>
-                    {forecast2HrWeather}
-                    <h3>Forecast 24hr</h3>
-                    {forecast24HrWeather}
-                    <h2>GeoLocation</h2>
-                    <h3>{this.state.latitude} : {this.state.longitude}</h3>
 
-                </div>
-                
+
+
             </div>
         );
     }

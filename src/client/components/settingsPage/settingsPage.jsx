@@ -20,7 +20,7 @@ class SettingsPage extends React.Component {
     render() {
         return (
             <div className={styles.settingsPage}>
-
+                Hello Settings
             </div>
         );
     }

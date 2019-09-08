@@ -1,18 +1,18 @@
 .timeTile {
-	background-color: rgba(50,50,50,0.2);
+	background-color: rgba(150,150,150,0.4);
 	padding: 10px;
 	margin: 10px;
 	border-radius: 15px;
-	-webkit-backdrop-filter: blur(1px);
-	backdrop-filter: blur(1px);
-	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.3);
+	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.4);
 	text-shadow:
     0 0 5px #fff,
     0 0 10px #fff,
     0 0 50px #68ffc8,
     0 0 75px #68ffc8;
 }
-
+div>.timeTile:hover {
+   	box-shadow: 2px 2px 1px 1px rgba(50,50,50,0.4);
+}
 .time{
 	color:white;
 	font-size: 4em;
