@@ -6,14 +6,6 @@ import styles from './style.scss';
 
 import styled from 'styled-components';
 
-const Div = styled.div`
-    margin: 40px;
-    border: 5px outset pink;
-    &:hover {
-        background-color: yellow;
-    }
-`;
-
 const BusType_SD = styled.div`
     background-image: url('https://res.cloudinary.com/djm7zwedb/image/upload/v1567933727/SD_ms8swe.svg');
     background-size: contain;

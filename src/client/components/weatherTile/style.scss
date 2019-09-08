@@ -3,7 +3,7 @@
   margin:20px;
 }
 .weatherTile {
-	background-color: rgba(50,50,50,0.2);
+    background-color: rgba(50,50,50,0.2);
 	padding: 10px;
 	margin: 10px;
 	border-radius: 15px;
@@ -12,15 +12,21 @@
 	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.3);
 	text-shadow:
     0 0 5px #fff,
-    0 0 10px #fff,
-    0 0 50px #68ffc8,
-    0 0 75px #68ffc8;
+    0 0 10px #fff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
-.imgBg {
-    background-image: url("https://res.cloudinary.com/djm7zwedb/image/upload/v1567939055/sgwallpaper.jpg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: bottom;
-    width: 100%;
+.one_third {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    width:200px;
+    height:120px;
     margin:0;
+    text-align: center;
+    font-size: 1.5em;
 }

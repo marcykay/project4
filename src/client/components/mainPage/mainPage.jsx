@@ -519,6 +519,7 @@ class MainPage extends React.Component {
                     <h3>{this.state.latitude} : {this.state.longitude}</h3>
 
                 </div>
+                
             </div>
         );
     }
