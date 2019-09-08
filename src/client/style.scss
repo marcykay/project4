@@ -11,10 +11,12 @@ body {
 	padding: 20px;
 	background-image: url("https://res.cloudinary.com/djm7zwedb/image/upload/v1567837799/background.svg");
     width: 100%;
-	height: 200vh;
+	min-height: 100vh;
+	height: auto;
     min-height:100vh;
     background-size: cover;
     background-repeat: no-repeat;
+	background-color: #E98589;
 
 }
 .main_container {

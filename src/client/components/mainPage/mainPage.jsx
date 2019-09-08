@@ -2,11 +2,10 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
+import WeatherTile from '../weatherTile/weatherTile';
 import TimeTile from '../timeTile/timeTile';
-import BusTile from '../BusTile/BusTile';
+import BusTile from '../busTile/busTile';
 import styles from './style.scss';
-
-
 
 class MainPage extends React.Component {
     constructor() {
@@ -30,6 +29,16 @@ class MainPage extends React.Component {
             time: "",
             busPref: [],
         };
+    }
+
+    componentDidMount() {
+        this.ajaxGetBusPreference();
+        // this.interval = setInterval(() => this.getBusArrival(), 30000);
+        this.getCoordinates();
+    }
+
+    componentWillUnmount() {
+        //clearInterval(this.interval);
     }
 
     fetchUserName() {
@@ -453,6 +462,7 @@ class MainPage extends React.Component {
             <div>
 
                 <TimeTile />
+                <WeatherTile />
                 {busInfo}
 
                 <p>

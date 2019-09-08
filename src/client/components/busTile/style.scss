@@ -6,19 +6,69 @@
 	-webkit-backdrop-filter: blur(1px);
 	backdrop-filter: blur(1px);
 	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.3);
-	
+
+}
+.busTile>p{
+	margin: 0;
+	margin-bottom: 5px;
+	padding:0;
+}
+.serviceNo{
+	background-color: rgba(50,50,50,0.1);
+	padding:0;
+	font-size: 2.5em;
+	display: flex;
+	min-width: 120px;
+	text-align: center;
+	border-radius: 10px;
+	justify-content: center;
+	align-items: center;
+	height: 100px;
 }
 
-.time{
-	color:white;
-	font-size: 4em;
-	text-align:center;
-	font-family: 'Rubik', sans-serif;
+.arrival_container {
+	display:flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	height: 100px;
 }
 
-.date {
-	color:white;
-	font-size: 1.5em;
-	text-align:center;
-	font-family: 'Rubik', sans-serif;
+.arrivalTag{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-content: center;
+	minwidth: 50px;
+	height: 100px;
+	text-align: center;
+	margin-left: 30px;
+	margin-right: 10px;
+}
+
+.busTag{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-content: center;
+	text-align: center;
+	border-radius: 10px;
+	margin-left: 10px;
+	margin-right: 5px;
+}
+
+.arrivalText{
+	font-size: 2em;
+	text-align: center;
+}
+
+.arrivalTextARR{
+	font-size: 3em;
+	letter-spacing: 1px;
+	text-align: center;
+}
+
+.minute {
+	font-size: 1em;
+	text-align: center;
 }

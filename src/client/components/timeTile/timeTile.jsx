@@ -31,10 +31,9 @@ class TimeTile extends React.Component {
 
     render() {
         let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-        //console.log("height of timeTile div : " +{this.state.height} + "px");
         return (
             <div className={styles.timeTile} ref={ (divElement) => this.divElement = divElement}>
-                <div className={styles.date}>{this.state.date.toLocaleDateString('en-SG', options)}, height of timeTile div : {this.state.height}px
+                <div className={styles.date}>{this.state.date.toLocaleDateString('en-SG', options)}
                 </div>
                 <div className={styles.time}>{this.state.time.toLocaleTimeString()}
                 </div>

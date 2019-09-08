@@ -1,0 +1,26 @@
+.name{
+  padding:5px;
+  margin:20px;
+}
+.weatherTile {
+	background-color: rgba(50,50,50,0.2);
+	padding: 10px;
+	margin: 10px;
+	border-radius: 15px;
+	-webkit-backdrop-filter: blur(1px);
+	backdrop-filter: blur(1px);
+	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.3);
+	text-shadow:
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 50px #68ffc8,
+    0 0 75px #68ffc8;
+}
+.imgBg {
+    background-image: url("https://res.cloudinary.com/djm7zwedb/image/upload/v1567939055/sgwallpaper.jpg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    width: 100%;
+    margin:0;
+}
