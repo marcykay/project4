@@ -12,7 +12,7 @@ class MainPage extends React.Component {
     constructor() {
         super();
         this.state = {
-            input1 : "",
+            inputSearchField : "",
             input2 : "",
             input5 : "",
             location : "Ang Mo Kio",
@@ -34,12 +34,10 @@ class MainPage extends React.Component {
 
     componentDidMount() {
         this.ajaxGetBusPreference();
-        // this.interval = setInterval(() => this.getBusArrival(), 30000);
         this.getCoordinates();
     }
 
     componentWillUnmount() {
-        //clearInterval(this.interval);
     }
 
     fetchUserName() {
@@ -72,8 +70,8 @@ class MainPage extends React.Component {
         navigator.geolocation.getCurrentPosition(success, error, options)
     }
 
-    updateInput1(event) {
-        this.setState({input1: event.target.value});
+    inputSearchNamesHandler(event) {
+        this.setState({inputSearchField: event.target.value});
         let tempStr = event.target.value.toString();
         console.log(tempStr);
         let arr = this.state.busStops.filter(function(busStop){
@@ -104,7 +102,7 @@ class MainPage extends React.Component {
         this.setState({location: event.target.value});
     }
 
-    updateInput4(event) {
+    selectorNamesHandler(event) {
         this.setState({busStopCode: event.target.value});
     }
 
@@ -183,7 +181,7 @@ class MainPage extends React.Component {
         let data = {username: this.fetchUserName(), busstopcode: reactComponent.state.busStopCode, serviceno: reactComponent.state.input5, roadname: busStopInfo.RoadName, description: busStopInfo.Description, latitude: busStopInfo.Latitude, longitude:busStopInfo.Longitude};
         let responseHandler = function() {
             // const result = JSON.parse(this.responseText);
-            ajaxGetBusPreference();
+            reactComponent.ajaxGetBusPreference();
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
@@ -316,7 +314,8 @@ class MainPage extends React.Component {
 
 
 
-    ajaxBusStops() {
+    getBusStopsInfo() {
+        console.log('click get bus stops info');
         const reactComponent = this;
         let skip = "";
         if (!reactComponent.state.endOfArray) {
@@ -333,7 +332,7 @@ class MainPage extends React.Component {
                 }
                 // if (!reactComponent.state.endOfArray){
                 //     ajaxPumpData(result.value);
-                //     reactComponent.ajaxBusStops();
+                //     reactComponent.getBusStopsInfo();
                 // } else {
                 //     console.log("All Bus Stops Fully Loaded")}
             };
@@ -380,7 +379,7 @@ class MainPage extends React.Component {
 
             selectorBusStops = (
                 <label>Select your location
-                    <select  onChange={(event)=>this.updateInput4(event)}>
+                    <select size="5" onChange={(event)=>this.selectorNamesHandler(event)}>
                     {busStopOption}
                     </select>
                 </label>
@@ -413,10 +412,10 @@ class MainPage extends React.Component {
                 <TimeTile />
                 <WeatherTile />
                 {busInfo}
-
+                <SettingsPage getBusStopsInfo={()=>this.getBusStopsInfo()} inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops}/>
 
                 <p>
-                    <input type="text" onChange={ (event)=>this.updateInput1(event) } value={this.state.input1} />Enter road names or bus stop names
+                    <input type="text" onChange={ (event)=>this.inputSearchNamesHandler(event) } value={this.state.inputSearchField} />Enter road names or bus stop names
                     <input type="text" onChange={ (event)=>this.updateInput5(event) } value={this.state.input5} />Bus Service Nos
                 </p>
 
@@ -427,7 +426,7 @@ class MainPage extends React.Component {
                 <button onClick={()=>this.ajaxBusArrival()}>
                 Load Bus Arrival
                 </button>
-                <button onClick={()=>this.ajaxBusStops()}>
+                <button onClick={()=>this.getBusStopsInfo()}>
                 Bus Stops
                 </button>
 
@@ -441,10 +440,7 @@ class MainPage extends React.Component {
                 ajaxGetBusPreference
                 </button>
 
-
-
-                <p>{selectorBusStops}</p>
-                    {returnBus}
+                {returnBus}
 
 
 

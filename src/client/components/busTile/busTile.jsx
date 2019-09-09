@@ -117,12 +117,13 @@ class BusTile extends React.Component {
         super();
         this.state = {
             data: [],
+            updated: false,
         }
     }
 
 
     componentDidMount() {
-        // this.getBusArrival();
+        //this.getBusArrival();
         //this.interval = setInterval(() => this.getBusArrival(), 30000);
     }
 
@@ -142,8 +143,14 @@ class BusTile extends React.Component {
         let time = d*1000/1.25/60;
         if (time < 1) {
             time = "< 2mins walk";
-        } else if (time < 10) {
-            time = Math.ceil(time);
+        } else if (time < 8) {
+            time = Math.ceil(time*1.1);
+            time = "~"+time+"mins walk";
+        } else if (time < 12){
+            time = Math.ceil(time*1.2);
+            time = "~"+time+"mins walk";
+        } else {
+            time = Math.ceil(time*1.3);
             time = "~"+time+"mins walk";
         }
         if (d < 2) {
@@ -170,6 +177,7 @@ class BusTile extends React.Component {
             // console.log("arrival: ",result.Services[0]);
             // console.log("------------------------------");
             reactComponent.setState({ data: result.Services[0]});
+            reactComponent.setState({ updated: true});
             console.log(reactComponent.state.data);
         };
         let request = new XMLHttpRequest();
@@ -250,8 +258,8 @@ class BusTile extends React.Component {
         let busLoad2 = "";
         let busLoad3 = "";
 
-        if (this.state.data.length > 0) {
-            // console.log("------------------------------------")
+        if (this.state.updated) {
+            console.log("------------------------------------")
             // console.log(this.parseTime(this.state.data.NextBus.EstimatedArrival));
             nextBus = this.parseTime(this.state.data.NextBus.EstimatedArrival);
             nextBus2 = this.parseTime(this.state.data.NextBus2.EstimatedArrival);
@@ -271,7 +279,7 @@ class BusTile extends React.Component {
             <div className={styles.busTile}>
                 <p><span><b>{this.props.busPref.description}</b> </span>|<span> {this.props.busPref.roadname} </span>|<small> {this.props.busPref.busstopcode}, {d} </small></p>
                 <div className={styles.arrival_container}>
-                    <div className={styles.serviceNo}><div>{this.props.busPref.serviceno}</div></div>
+                    <div className={styles.serviceNo} onClick={()=>this.getBusArrival()}><div>{this.props.busPref.serviceno}</div></div>
                     <div className={styles.arrivalTag}>{nextBus}</div>
                     <div className={styles.busTag}>
                         {busType}

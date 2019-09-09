@@ -85,7 +85,8 @@ class WeatherTile extends React.Component {
         let responseHandler = function() {
           const result = JSON.parse(this.responseText);
           reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
-          console.log(reactComponent.state.weather24HrData);
+          console.log("weather");
+          console.dir(reactComponent.state.weather24HrData);
         };
         let request = new XMLHttpRequest();
         request.addEventListener("load", responseHandler);
