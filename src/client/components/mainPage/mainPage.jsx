@@ -21,7 +21,9 @@ class MainPage extends React.Component {
             weather24HrData : "",
             data:"",
             busStops:[],
+            busRoutes:[],
             busStopsCounter: 0,
+            busRoutesCounter: 0,
             endOfArray: false,
             busStopCode: "",
             filteredBusStops: [],
@@ -33,7 +35,7 @@ class MainPage extends React.Component {
     }
 
     componentDidMount() {
-        this.ajaxGetBusPreference();
+        this.getUserBusPreference();
         this.getCoordinates();
     }
 
@@ -72,6 +74,7 @@ class MainPage extends React.Component {
 
     inputSearchNamesHandler(event) {
         this.setState({inputSearchField: event.target.value});
+        this.setState({data: ""});
         let tempStr = event.target.value.toString();
         console.log(tempStr);
         let arr = this.state.busStops.filter(function(busStop){
@@ -104,6 +107,7 @@ class MainPage extends React.Component {
 
     selectorNamesHandler(event) {
         this.setState({busStopCode: event.target.value});
+        this.ajaxBusArrival()
     }
 
     updateInput5(event) {
@@ -181,7 +185,7 @@ class MainPage extends React.Component {
         let data = {username: this.fetchUserName(), busstopcode: reactComponent.state.busStopCode, serviceno: reactComponent.state.input5, roadname: busStopInfo.RoadName, description: busStopInfo.Description, latitude: busStopInfo.Latitude, longitude:busStopInfo.Longitude};
         let responseHandler = function() {
             // const result = JSON.parse(this.responseText);
-            reactComponent.ajaxGetBusPreference();
+            reactComponent.getUserBusPreference();
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
@@ -190,7 +194,7 @@ class MainPage extends React.Component {
         xmlhttp.send(JSON.stringify(data));
     }
 
-    ajaxGetBusPreference() {
+    getUserBusPreference() {
         const reactComponent = this;
         let data = {username: reactComponent.fetchUserName()};
         let responseHandler = function() {
@@ -307,10 +311,46 @@ class MainPage extends React.Component {
         request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
         request.setRequestHeader('accept', 'application/json');
         request.send();
-
     }
-    //objs.sort((a,b) => (a.last_nom > b.last_nom) ? 1 : ((b.last_nom > a.last_nom) ? -1 : 0));
 
+    ajaxBusRoutes(){
+        console.log('click get bus routes info');
+        const reactComponent = this;
+        let skip = "";
+        if (!reactComponent.state.endOfArray) {
+            if (this.state.busRoutesCounter > 0) {
+                skip = "?$skip=" + this.state.busRoutesCounter*500;
+            }
+            let responseHandler = function() {
+                const result = JSON.parse(this.responseText);
+                reactComponent.setState({busRoutes: reactComponent.state.busRoutes.concat(result.value) });
+                reactComponent.setState({busRoutesCounter: reactComponent.state.busRoutesCounter+1});
+                console.log(reactComponent.state.busRoutes);
+                if (result.value.length===0) {
+                    reactComponent.setState({endOfArray: true});
+                }
+                // if (!reactComponent.state.endOfArray){
+                //     ajaxPumpData(result.value);
+                //     reactComponent.getBusStopsInfo();
+                // } else {
+                //     console.log("All Bus Stops Fully Loaded")}
+            };
+            let request = new XMLHttpRequest();
+            let api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusServices" + skip;
+            request.addEventListener("load", responseHandler);
+            request.open("GET", api_url);
+            request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
+            request.setRequestHeader('accept', 'application/json');
+            request.send();
+            } else {
+                console.log("end of array : unable to proceed");
+                console.log(reactComponent.state.busStops);
+        }
+    }
+
+
+    //objs.sort((a,b) => (a.last_nom > b.last_nom) ? 1 : ((b.last_nom > a.last_nom) ? -1 : 0));
+    // http://datamall2.mytransport.sg/ltaodataservice/BusServices
 
 
 
@@ -350,21 +390,6 @@ class MainPage extends React.Component {
     }
 
     render() {
-        let returnBus = "";
-        console.log('rendering mainPage.jsx');
-        // const date = new Date();
-        if (this.state.data.Services) {
-            returnBus = this.state.data.Services.map((bus, index)=>{
-                return (
-                    <div key={index}>
-                        <p>BUS NO: {bus.ServiceNo}</p>
-                        <span>NEXT BUS:  {this.parseTime(bus.NextBus.EstimatedArrival)}</span>
-                        <span>,  {this.parseTime(bus.NextBus2.EstimatedArrival)}</span>
-                        <span>,  {this.parseTime(bus.NextBus3.EstimatedArrival)}</span>
-                    </div>
-                );
-            });
-        }
 
         //selector for bus stops
         let selectorBusStops = "";
@@ -405,24 +430,20 @@ class MainPage extends React.Component {
 //
 // <p>
 //     <input type="text" onChange={ (event)=>this.updateInput2(event) } value={this.state.input2} />service no
-// </p>
+// </p>   <input type="text" onChange={ (event)=>this.inputSearchNamesHandler(event) } value={this.state.inputSearchField} />Enter road names or bus stop names
 
             <div>
 
                 <TimeTile />
                 <WeatherTile />
                 {busInfo}
-                <SettingsPage getBusStopsInfo={()=>this.getBusStopsInfo()} inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops}/>
+                <SettingsPage getBusStopsInfo={()=>this.getBusStopsInfo()} inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops} data={this.state.data}/>
 
                 <p>
-                    <input type="text" onChange={ (event)=>this.inputSearchNamesHandler(event) } value={this.state.inputSearchField} />Enter road names or bus stop names
+
                     <input type="text" onChange={ (event)=>this.updateInput5(event) } value={this.state.input5} />Bus Service Nos
                 </p>
-
-                <p>
                     <input type="text" value={this.state.busStopCode} />bus stop code
-                </p>
-
                 <button onClick={()=>this.ajaxBusArrival()}>
                 Load Bus Arrival
                 </button>
@@ -436,11 +457,14 @@ class MainPage extends React.Component {
                 <button onClick={()=>this.ajaxSunriseSunset()}>
                 Sunrise Sunset
                 </button>
-                <button onClick={()=>this.ajaxGetBusPreference()}>
-                ajaxGetBusPreference
+                <button onClick={()=>this.getUserBusPreference()}>
+                getUserBusPreference
                 </button>
 
-                {returnBus}
+                <button onClick={()=>this.ajaxBusRoutes()}>
+                Fetch Bus Routes
+                </button>
+
 
 
 

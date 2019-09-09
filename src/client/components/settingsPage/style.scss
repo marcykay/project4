@@ -5,17 +5,26 @@
 	border-radius: 15px;
 	box-shadow: 1px 1px 1px 1px rgba(50,50,50,0.4);
 }
-
-.time{
-	color:white;
-	font-size: 4em;
-	text-align:center;
-	font-family: 'Rubik', sans-serif;
+.services_container{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
 }
 
-.date {
-	color:white;
-	font-size: 1.5em;
-	text-align:center;
-	font-family: 'Rubik', sans-serif;
+input[type=text] {
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+	background-color: white;
+	background-image: url('https://res.cloudinary.com/djm7zwedb/image/upload/v1568007339/search-icon_pbfpex.png');
+	background-position: 10px 10px;
+	background-repeat: no-repeat;
+	padding-left: 40px;
+	width: 50%;
+    margin: 8px 0;
+	height: 20px;
+    box-sizing: border-box;
+}
+
+input[type=text]:focus {
+    width: 80%;
 }
