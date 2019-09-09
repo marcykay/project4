@@ -174,11 +174,16 @@ class BusTile extends React.Component {
             const result = JSON.parse(this.responseText);
             // result.Services.sort( (a,b) => (parseInt(a.ServiceNo) > parseInt(b.ServiceNo) ) ? 1: -1 );
             // reactComponent.setState({ data:result });
-            // console.log("arrival: ",result.Services[0]);
-            // console.log("------------------------------");
-            reactComponent.setState({ data: result.Services[0]});
-            reactComponent.setState({ updated: true});
-            console.log(reactComponent.state.data);
+            console.log("arrival: ",result);
+            if (result.Services.length > 0) {
+                reactComponent.setState({ data: result.Services[0]});
+                reactComponent.setState({ updated: true});
+                console.log(reactComponent.state.data);
+            } else{
+                console.log("undefined, probably bus no longer in service");
+                console.log("------------------------------");
+            }
+
         };
         let request = new XMLHttpRequest();
         let api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+this.props.busPref.busstopcode;

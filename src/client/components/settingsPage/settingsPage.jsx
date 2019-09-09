@@ -6,6 +6,8 @@ import styles from './style.scss';
 
 import styled from 'styled-components';
 
+import 'boxicons';
+
 const ServiceNo = styled.div`
     background-color: rgba(120,120,120,0.5);
     padding:0;
@@ -19,24 +21,51 @@ const ServiceNo = styled.div`
     height: 60px;
     color:white;
     margin-right:10px;
-    margin-bottom:10px;
+    margin-top:10px;
 `;
 
 class SettingsPage extends React.Component {
     constructor() {
         super();
         this.state = {
+            showButton: false,
         }
     }
 
     componentDidMount() {
-
+        this.props.getBusStopsInfo();
     }
 
     componentWillUnmount() {
 
     }
 
+    selectHandler(event) {
+        let elements = document.querySelectorAll('.serviceTag');
+        elements.forEach((ele)=>{
+            ele.style.color="white"});
+        this.setState({showButton: false});
+        this.props.selectorNamesHandler(event)
+    }
+
+    clickHandler(event) {
+        let elements = document.querySelectorAll('.serviceTag');
+        if (event.target.style.color==="yellow") {
+            event.target.style.color="white";
+            this.setState({showButton: false});
+        } else {
+            elements.forEach((ele)=>{
+                ele.style.color="white"});
+            event.target.style.color="yellow";
+            this.setState({showButton: true});
+        }
+
+        this.props.clickAddServiceNoHandler(event);
+    }
+
+    addPreferenceHandler(event) {
+        this.props.addUserBusPreference()
+    }
 
 
     render() {
@@ -52,7 +81,7 @@ class SettingsPage extends React.Component {
 
             selectorBusStops = (
                 <label><p>Select your location</p>
-                    <select size="8" onChange={(event)=>this.props.selectorNamesHandler(event)}>
+                    <select size="8" onChange={(event)=>this.selectHandler(event)}>
                     {busStopOption}
                     </select>
                 </label>
@@ -64,21 +93,25 @@ class SettingsPage extends React.Component {
         if (this.props.data.Services) {
             busServiceNos = this.props.data.Services.map((bus, index)=>{
                 return (
-                        <ServiceNo key={index}>{bus.ServiceNo}</ServiceNo>
+                        <ServiceNo className="clickAdd serviceTag" key={index} onClick={(event)=>this.clickHandler(event)}>{bus.ServiceNo}</ServiceNo>
                 );
             });
         }
 
+        let addToPreference = "";
 
         return (
             <div className={styles.settingsPage}>
                 <h2>Add Preferences</h2>
-                <h3>Search By Road Names or </h3>
-                <button onClick={()=>this.props.getBusStopsInfo()}>Load Bus Stops</button>
                 <p>Enter road names or bus stop names</p>
                 <p><input type="text" placeholder="Address, bus stop number" onChange={ (event)=>this.props.inputSearchNamesHandler(event) } value={this.props.inputSearchField} /></p>
-                <p>{selectorBusStops}</p>
-                <div className={styles.services_container}> {busServiceNos} </div>
+                {selectorBusStops}
+                <div className={styles.services_container}> {busServiceNos}
+                    {
+                        this.state.showButton ? (<button className="clickAddButton" onClick={console.log('clicked!')}> Click to Add >> </button>)
+                        : (null)
+                    }
+                </div>
             </div>
         );
     }

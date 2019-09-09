@@ -72,6 +72,7 @@
     "airbnb-browser-shims": ">=3.1.0",
     "babel-polyfill": ">=6.26.0",
     "body-parser": ">=1.18.3",
+    "boxicons": "^2.0.3",
     "compression": ">=1.7.3",
     "cookie-parser": "^1.4.4",
     "eslint-config-airbnb": ">=17.1.0",

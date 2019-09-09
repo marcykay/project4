@@ -16,6 +16,18 @@ const Fair = styled.div`
     padding:0;
 `;
 
+const Hazy = styled.div`
+    background-image: url('https://res.cloudinary.com/djm7zwedb/image/upload/v1568042268/weather_icons/haze_buixje.svg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top;
+    display: inline-block;
+    width:120px;
+    height: 120px;
+    margin:0;
+    padding:0;
+`;
+
 const Cloudy = styled.div`
     background-image: url('https://res.cloudinary.com/djm7zwedb/image/upload/v1567945524/weather_icons/cloudy_jodffe.svg');
     background-size: cover;
@@ -114,6 +126,12 @@ class WeatherTile extends React.Component {
                     break;
                 case 'Fair' :
                     weatherIcon = (<Fair></Fair>);
+                    break;
+                case 'Hazy' :
+                    weatherIcon = (<Hazy></Hazy>);
+                    break;
+                case 'Slightly Hazy' :
+                    weatherIcon = (<Hazy></Hazy>);
                     break;
                 case 'Partly Cloudy' :
                     weatherIcon = (<Cloudy></Cloudy>);
