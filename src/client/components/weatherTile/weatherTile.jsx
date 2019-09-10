@@ -96,6 +96,7 @@ class WeatherTile extends React.Component {
         let date = this.getDateYYYYMMDD();
         let responseHandler = function() {
           const result = JSON.parse(this.responseText);
+          console.log(result);
           reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
           console.log("weather");
           console.dir(reactComponent.state.weather24HrData);
@@ -107,6 +108,34 @@ class WeatherTile extends React.Component {
         request.send();
     }
 
+    //https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=today
+
+    ajaxSunriseSunset() {
+        const reactComponent = this;
+        if (reactComponent.state.latitude !== "") {
+            let api_url = "https://api.sunrise-sunset.org/json?lat=" + reactComponent.state.latitude + "&lng=" + reactComponent.state.longitude + "&date=today";
+            console.log(api_url);
+            let responseHandler = function() {
+                const result = JSON.parse(this.responseText);
+                console.log(result);
+                this.calcTime(result);
+                //reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
+            };
+            let request = new XMLHttpRequest();
+            request.addEventListener("load", responseHandler);
+            request.open("GET", api_url);
+            request.setRequestHeader('accept', 'application/json');
+            request.send();
+        } else {
+            console.log("NO Coordinates data detected");
+        }
+
+    }
+
+    // <button onClick={()=>this.ajaxSunriseSunset()}>
+    // Sunrise Sunset
+    // </button>
+
     render() {
         let forecast = "";
         let temperature = "";
@@ -114,7 +143,8 @@ class WeatherTile extends React.Component {
         if (this.state.weather24HrData) {
             temperature = (
                 <div>
-                    {this.state.weather24HrData.general.temperature.high}°C / {this.state.weather24HrData.general.temperature.low}°C
+                    <p className={styles.red}>{this.state.weather24HrData.general.temperature.high}°C</p>
+                    <p className={styles.blue}>{this.state.weather24HrData.general.temperature.low}°C</p>
                 </div>
             );
             forecast = (

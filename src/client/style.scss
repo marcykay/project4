@@ -1,16 +1,15 @@
 body,
 html {
 	background-color: white;
-	min-width: 700px;
 	font-family: 'Rubik', sans-serif;
 }
 
-/*insert  css here   */
+/*insert  css here  https://res.cloudinary.com/djm7zwedb/image/upload/v1567953497/hex-abstract-material-design-ad_zxuqtz.jpg */
 
 body {
 	padding: 20px;
-	background-image: url("https://res.cloudinary.com/djm7zwedb/image/upload/v1567953497/hex-abstract-material-design-ad_zxuqtz.jpg");
-    width: 100%;
+	background-image: url("");
+	min-width: 700px;
 	min-height: 100vh;
 	height: auto;
     min-height:100vh;
@@ -21,11 +20,12 @@ body {
 }
 .main_container {
 	display:flex;
+	width: 100%;
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
 }
 
 .app_container {
-	max-width: 700px;
+	min-width: 700px;
 }

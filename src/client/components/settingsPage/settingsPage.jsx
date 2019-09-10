@@ -39,15 +39,18 @@ class SettingsPage extends React.Component {
     componentWillUnmount() {
 
     }
-
+    // bus stop selector
     selectHandler(event) {
+        console.log("event target");
+        console.log(event.target.value);
         let elements = document.querySelectorAll('.serviceTag');
         elements.forEach((ele)=>{
             ele.style.color="white"});
         this.setState({showButton: false});
-        this.props.selectorNamesHandler(event)
+        this.props.selectorNamesHandler(event);
     }
 
+    //bus service nos
     clickHandler(event) {
         let elements = document.querySelectorAll('.serviceTag');
         if (event.target.style.color==="yellow") {
@@ -63,8 +66,11 @@ class SettingsPage extends React.Component {
         this.props.clickAddServiceNoHandler(event);
     }
 
-    addPreferenceHandler(event) {
-        this.props.addUserBusPreference()
+    // click to add to database
+    addPreferenceHandler() {
+        let count= Math.floor(Math.random()*100);
+        console.log("add preference : ", count);
+        //this.props.addUserBusPreference();
     }
 
 
@@ -102,16 +108,19 @@ class SettingsPage extends React.Component {
 
         return (
             <div className={styles.settingsPage}>
+
                 <h2>Add Preferences</h2>
                 <p>Enter road names or bus stop names</p>
                 <p><input type="text" placeholder="Address, bus stop number" onChange={ (event)=>this.props.inputSearchNamesHandler(event) } value={this.props.inputSearchField} /></p>
                 {selectorBusStops}
+
                 <div className={styles.services_container}> {busServiceNos}
                     {
-                        this.state.showButton ? (<button className="clickAddButton" onClick={console.log('clicked!')}> Click to Add >> </button>)
+                        this.state.showButton ? (<button className="clickAddButton" onClick={this.props.addUserBusPreference()}> Click to Add >> </button>)
                         : (null)
                     }
                 </div>
+
             </div>
         );
     }

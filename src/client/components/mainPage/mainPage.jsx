@@ -108,7 +108,7 @@ class MainPage extends React.Component {
 
     selectorNamesHandler(event) {
         this.setState({busStopCode: event.target.value});
-        this.ajaxBusArrival()
+        this.ajaxBusServices(event.target.value);
     }
 
     clickAddServiceNoHandler(event) {
@@ -120,8 +120,8 @@ class MainPage extends React.Component {
         } else {
             this.setState({serviceNo: value});
         }
-        console.log('-----')
-        console.log(this.state.serviceNo);
+        console.log('-----');
+        console.log('service no selected :::::> ',this.state.serviceNo);
     }
 
     consolePrint() {
@@ -164,29 +164,7 @@ class MainPage extends React.Component {
         }
     }
 
-//https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=today
 
-    ajaxSunriseSunset() {
-        const reactComponent = this;
-        if (reactComponent.state.latitude !== "") {
-            let api_url = "https://api.sunrise-sunset.org/json?lat=" + reactComponent.state.latitude + "&lng=" + reactComponent.state.longitude + "&date=today";
-            console.log(api_url);
-            let responseHandler = function() {
-                const result = JSON.parse(this.responseText);
-                console.log(result);
-                this.calcTime(result);
-                //reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
-            };
-            let request = new XMLHttpRequest();
-            request.addEventListener("load", responseHandler);
-            request.open("GET", api_url);
-            request.setRequestHeader('accept', 'application/json');
-            request.send();
-        } else {
-            console.log("NO Coordinates data detected");
-        }
-
-    }
 
 // ---------------------  OK  ---------------------
     addUserBusPreference() {
@@ -241,6 +219,7 @@ class MainPage extends React.Component {
             let api_url2 = "&ServiceNo="+service_no;
             api_url1 = api_url1+api_url2;
         }
+        console.log(api_url1);
         request.addEventListener("load", responseHandler);
         request.open("GET", api_url1 );
         request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
@@ -302,7 +281,7 @@ class MainPage extends React.Component {
         request.send();
     }
 
-    ajaxBusArrival() {
+    ajaxBusServices(busCode) {
         const reactComponent = this;
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
@@ -311,13 +290,9 @@ class MainPage extends React.Component {
             console.log("BUSES AVAILABLE: ", reactComponent.state.data);
         };
         let request = new XMLHttpRequest();
-        let api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+reactComponent.state.busStopCode;
-        if (this.state.input2) {
-            let api_url2 = "&ServiceNo="+this.state.input2;
-            api_url1 = api_url1+api_url2;
-        }
+        let api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+busCode;
         request.addEventListener("load", responseHandler);
-        request.open("GET", api_url1 );
+        request.open("GET", api_url );
         request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
         request.setRequestHeader('accept', 'application/json');
         request.send();
@@ -383,7 +358,9 @@ class MainPage extends React.Component {
                         ajaxPumpData(result.value);
                         reactComponent.getBusStopsInfo();
                     } else {
-                        console.log("All Bus Stops Fully Loaded")}
+                        console.log("All Bus Stops Fully Loaded")};
+                        this.storeLocalData('busStopCodes', this.state.busStops);
+
                 };
                 let request = new XMLHttpRequest();
                 let api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusStops" + skip;
@@ -421,7 +398,6 @@ class MainPage extends React.Component {
         let busInfo = "";
         if (this.state.busPref.length > 0) {
             busInfo = this.state.busPref.map((item,index)=>{
-                console.log(item);
                 return (<BusTile busPref={this.state.busPref[index]} latitude={this.state.latitude} longitude={this.state.longitude}/>)
             })
         }
@@ -432,24 +408,22 @@ class MainPage extends React.Component {
                 <TimeTile />
                 <WeatherTile />
                 {busInfo}
-                <SettingsPage inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops} data={this.state.data} clickAddServiceNoHandler={(e)=>this.clickAddServiceNoHandler(e)} addUserBusPreference={(e)=>this.addUserBusPreference(e)} getBusStopsInfo={()=>this.getBusStopsInfo()}/>
+                <SettingsPage inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops} data={this.state.data} clickAddServiceNoHandler={(e)=>this.clickAddServiceNoHandler(e)} addUserBusPreference={()=>this.addUserBusPreference()} getBusStopsInfo={()=>this.getBusStopsInfo()}/>
 
                 <p><input type="text" value={this.state.serviceNo} />Bus Service Nos
                 </p>
                     <input type="text" value={this.state.busStopCode} />bus stop code
-                <button onClick={()=>this.ajaxBusArrival()}>
+                <button onClick={()=>this.ajaxBusServices('76209')}>
                 Load Bus Arrival
                 </button>
                 <button onClick={()=>this.getBusStopsInfo()}>
-                Bus Stops
+                zzzBus Stops
                 </button>
 
                 <button onClick={()=>this.addUserBusPreference()}>
                 Add Bus Preference
                 </button>
-                <button onClick={()=>this.ajaxSunriseSunset()}>
-                Sunrise Sunset
-                </button>
+
                 <button onClick={()=>this.getUserBusPreference()}>
                 getUserBusPreference
                 </button>
