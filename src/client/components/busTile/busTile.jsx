@@ -121,7 +121,6 @@ class BusTile extends React.Component {
         }
     }
 
-
     componentDidMount() {
         //this.getBusArrival();
         //this.interval = setInterval(() => this.getBusArrival(), 30000);
@@ -156,7 +155,10 @@ class BusTile extends React.Component {
         if (d < 1) {
             d = (Math.round(d*1000));
             return d+"m, "+time;
-        } else if (d < 10) {
+        } else if (d < 2) {
+            d = (Math.round(d*100))/100;
+            return d+"km, "+time;
+        }  else if (d < 10) {
             d = (Math.round(d*100))/100;
             return d+"km";
         } else {
@@ -165,8 +167,6 @@ class BusTile extends React.Component {
         }
         return d;
     }
-
-
 
     getBusArrival() {
         const reactComponent = this;
@@ -249,6 +249,7 @@ class BusTile extends React.Component {
 
     render() {
         let d = this.distance(this.props.longitude, this.props.latitude,  this.props.busPref.longitude, this.props.busPref.latitude);
+        console.log(this.props.busPref.id);
 
         let nextBus = "";
         let nextBus2 = "";
@@ -262,9 +263,10 @@ class BusTile extends React.Component {
         let busLoad = "";
         let busLoad2 = "";
         let busLoad3 = "";
+        let closeComponentId ="";
 
         if (this.state.updated) {
-            console.log("------------------------------------")
+            console.log("------------------------------------");
             // console.log(this.parseTime(this.state.data.NextBus.EstimatedArrival));
             nextBus = this.parseTime(this.state.data.NextBus.EstimatedArrival);
             nextBus2 = this.parseTime(this.state.data.NextBus2.EstimatedArrival);
@@ -278,11 +280,16 @@ class BusTile extends React.Component {
             busLoad = this.loadBusLoad(this.state.data.NextBus.Load);
             busLoad2 = this.loadBusLoad(this.state.data.NextBus2.Load);
             busLoad3 = this.loadBusLoad(this.state.data.NextBus3.Load);
+
+
         };
 
         return (
             <div className={styles.busTile}>
-                <p><span><b>{this.props.busPref.description}</b> </span>|<span> {this.props.busPref.roadname} </span>|<small> {this.props.busPref.busstopcode}, {d} </small></p>
+
+            <div className={styles.settingsBar}><div className={styles.fixedRight} onClick={(e)=>{this.props.deleteUserBusPreference(e)}} ><img data-id={this.props.busPref.id}  src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568085653/closeX_mczwch.svg" height="15" width="15"/></div></div>
+
+                <p><span><b>{this.props.busPref.description}</b> </span>|<span> {this.props.busPref.roadname} </span>|<small> {this.props.busPref.busstopcode}, {d} </small> </p>
                 <div className={styles.arrival_container}>
                     <div className={styles.serviceNo} onClick={()=>this.getBusArrival()}><div>{this.props.busPref.serviceno}</div></div>
                     <div className={styles.arrivalTag}>{nextBus}</div>

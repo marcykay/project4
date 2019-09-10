@@ -89,8 +89,6 @@ class MainPage extends React.Component {
         console.log('service no selected :::::> ',this.state.serviceNo);
     }
 
-
-
     parseTime(estimatedBusArrival) {
         let timeNow = new Date().getTime();
         let timeFromAPI = (new Date(estimatedBusArrival)).getTime();
@@ -185,15 +183,17 @@ class MainPage extends React.Component {
         xmlhttp.send(JSON.stringify(data));
     }
 
-    deleteUserBusPreference(id) {
+    deleteUserBusPreference(e) {
+        let id = e.target.dataset.id;
         const reactComponent = this;
         let data = {username: reactComponent.fetchUserName(), id: id};
         let responseHandler = function() {
-            const result = JSON.parse(this.responseText);
-            console.log("delete user bus preference")
-            console.log(result);
+            //const result = JSON.parse(this.responseText);
+
             // retrieve the new bus preferences and update the client
             reactComponent.getUserBusPreference();
+            
+            console.log("delete user bus preference")
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
@@ -425,13 +425,13 @@ class MainPage extends React.Component {
         let busInfo = "";
         if (this.state.busPref.length > 0) {
             busInfo = this.state.busPref.map((item,index)=>{
-                return (<BusTile busPref={this.state.busPref[index]} latitude={this.state.latitude} longitude={this.state.longitude}/>)
+                return (<BusTile busPref={this.state.busPref[index]} latitude={this.state.latitude} longitude={this.state.longitude} deleteUserBusPreference={(id)=>this.deleteUserBusPreference(id)}/>)
             })
         }
 
         return (
 
-            <div><div className="settingsBar"><img src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568082423/settingsblack_qb51ag.svg" height="40" width="40" onClick={()=>this.settingsHandler()}/></div>
+            <div><div className={styles.settingsBar}><img className={styles.fixedright} src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568084559/settingsblack_i6dlyw.svg" height="40" width="40" onClick={()=>this.settingsHandler()}/></div>
 
                 {
                     this.state.showSettings ? (<SettingsPage inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops} data={this.state.data} clickAddServiceNoHandler={(e)=>this.clickAddServiceNoHandler(e)} addUserBusPreference={()=>this.addUserBusPreference()} getBusStopsInfo={()=>this.getBusStopsInfo()}/>)

@@ -71,3 +71,14 @@
 	font-size: 1em;
 	text-align: center;
 }
+
+.settingsBar {
+    position:relative;
+}
+
+.fixedRight {
+	position: absolute;
+	right:0px;
+	top:0px;
+	/*cursor: pointer;*/
+}
