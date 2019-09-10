@@ -103,6 +103,21 @@ module.exports = (db) => {
         })
     }
 
+    let deleteBusPreference = function(request, response) {
+        console.log(request.body);
+        let values = [request.body.id];
+        db.query.deleteBusPreference(values, (error, allResults) => {
+            console.log("error: ",error);
+            console.log("allresults: ",allResults);
+            if (error === null) {
+                response.status(200).send(allResults);
+            } else {
+                let errormessage = `<h2>Error!</h2><h5>${error.detail}</h5>`;
+                response.status(406).send(errormessage);
+            }
+        })
+    }
+
     let getBusPreference = function(request, response) {
         console.log(request.params);
         let values = [request.params.user];
@@ -157,6 +172,7 @@ module.exports = (db) => {
         uploadBusStopCodes: uploadBusStopCodes,
         addBusPreference: addBusPreference,
         getBusPreference: getBusPreference,
+        deleteBusPreference:deleteBusPreference,
     }
 
 };

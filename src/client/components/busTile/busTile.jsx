@@ -153,7 +153,7 @@ class BusTile extends React.Component {
             time = Math.ceil(time*1.3);
             time = "~"+time+"mins walk";
         }
-        if (d < 2) {
+        if (d < 1) {
             d = (Math.round(d*1000));
             return d+"m, "+time;
         } else if (d < 10) {

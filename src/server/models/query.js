@@ -75,6 +75,25 @@ module.exports = (dbPoolInstance) => {
         });
     };
 
+    let deleteBusPreference = (values, callback) => {
+        console.log("deleting bus preference..................");
+        console.log(values);
+        let query = 'DELETE FROM bus_preference where id=$1';
+        dbPoolInstance.query(query, values, (error, queryResult) => {
+            if (error) {
+                console.log("error in database");
+                callback(error, null);
+            } else {
+                if (queryResult.rows.length > 0) {
+                    console.log(queryResult);
+                    callback(null, queryResult.rows);
+                } else {
+                    callback(null, null);
+                }
+            }
+        });
+    };
+
     let getBusPreference = (values, callback) => {
         let query = 'SELECT * FROM bus_preference WHERE username=($1)';
         dbPoolInstance.query(query, values, (error, queryResult) => {
@@ -95,7 +114,8 @@ module.exports = (dbPoolInstance) => {
         addUser,
         getUserLogin,
         addBusPreference,
-        getBusPreference
+        getBusPreference,
+        deleteBusPreference
     };
 };
 

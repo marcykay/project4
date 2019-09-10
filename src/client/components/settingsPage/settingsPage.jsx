@@ -43,6 +43,7 @@ class SettingsPage extends React.Component {
     selectHandler(event) {
         console.log("event target");
         console.log(event.target.value);
+        console.log(this.state.showButton);
         let elements = document.querySelectorAll('.serviceTag');
         elements.forEach((ele)=>{
             ele.style.color="white"});
@@ -70,7 +71,10 @@ class SettingsPage extends React.Component {
     addPreferenceHandler() {
         let count= Math.floor(Math.random()*100);
         console.log("add preference : ", count);
-        //this.props.addUserBusPreference();
+        console.log(this.state.showButton);
+        console.log("pressed");
+        this.props.addUserBusPreference();
+        this.setState = ({showButton: false});
     }
 
 
@@ -87,13 +91,14 @@ class SettingsPage extends React.Component {
 
             selectorBusStops = (
                 <label><p>Select your location</p>
-                    <select size="8" onChange={(event)=>this.selectHandler(event)}>
+                    <select size="5" onChange={(event)=>this.selectHandler(event)}>
                     {busStopOption}
                     </select>
                 </label>
             );
         }
 
+        // display the buses available at the selected bus stop
         let busServiceNos = "";
 
         if (this.props.data.Services) {
@@ -116,7 +121,7 @@ class SettingsPage extends React.Component {
 
                 <div className={styles.services_container}> {busServiceNos}
                     {
-                        this.state.showButton ? (<button className="clickAddButton" onClick={this.props.addUserBusPreference()}> Click to Add >> </button>)
+                        this.state.showButton ? (<button className="clickAddButton" onClick={()=>this.addPreferenceHandler()}> Click to Add >> </button>)
                         : (null)
                     }
                 </div>
