@@ -68,3 +68,14 @@ button:active {
 button:focus {
 	outline: none;
 }
+
+.settingsBar {
+    position:relative;
+}
+
+.fixedRight {
+	position: absolute;
+	right:5px;
+	bottom:10px;
+	/*cursor: pointer;*/
+}

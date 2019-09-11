@@ -37,18 +37,14 @@ class SettingsPage extends React.Component {
     }
 
     componentWillUnmount() {
-
     }
     // bus stop selector
-    selectHandler(event) {
-        console.log("event target");
-        console.log(event.target.value);
-        console.log(this.state.showButton);
+    selectHandler(event, busStopCode) {
         let elements = document.querySelectorAll('.serviceTag');
         elements.forEach((ele)=>{
             ele.style.color="white"});
         this.setState({showButton: false});
-        this.props.selectorNamesHandler(event);
+        this.props.selectorNamesHandler(busStopCode);
     }
 
     //bus service nos
@@ -70,9 +66,6 @@ class SettingsPage extends React.Component {
     // click to add to database
     addPreferenceHandler() {
         let count= Math.floor(Math.random()*100);
-        console.log("add preference : ", count);
-        console.log(this.state.showButton);
-        console.log("pressed");
         this.props.addUserBusPreference();
         this.setState = ({showButton: false});
     }
@@ -85,13 +78,13 @@ class SettingsPage extends React.Component {
             let busStopOption = "";
             busStopOption = this.props.filteredBusStops.map( (busStop, index)=>{
                 return (
-                    <option key={index} value={busStop.BusStopCode}> {busStop.BusStopCode}, {busStop.Description}, {busStop.RoadName} </option>
+                    <option key={index} value={busStop.BusStopCode} onClick={(e)=>this.selectHandler(e, busStop.BusStopCode)}> {busStop.BusStopCode}, {busStop.Description}, {busStop.RoadName} </option>
                 );
             });
 
             selectorBusStops = (
                 <label><p>Select your location</p>
-                    <select size="5" onChange={(event)=>this.selectHandler(event)}>
+                    <select size="5">
                     {busStopOption}
                     </select>
                 </label>
@@ -100,7 +93,6 @@ class SettingsPage extends React.Component {
 
         // display the buses available at the selected bus stop
         let busServiceNos = "";
-
         if (this.props.data.Services) {
             busServiceNos = this.props.data.Services.map((bus, index)=>{
                 return (
@@ -113,8 +105,7 @@ class SettingsPage extends React.Component {
 
         return (
             <div className={styles.settingsPage}>
-
-                <h2>Add Preferences</h2>
+                <h3>Add Preferences</h3>
                 <p>Enter road names or bus stop names</p>
                 <p><input type="text" placeholder="Address, bus stop number" onChange={ (event)=>this.props.inputSearchNamesHandler(event) } value={this.props.inputSearchField} /></p>
                 {selectorBusStops}
@@ -125,6 +116,7 @@ class SettingsPage extends React.Component {
                         : (null)
                     }
                 </div>
+                <div className={styles.settingsBar}><a href="../login"><div className={styles.fixedRight}><img src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568095026/logout_gn64mc.svg" height="30" width="30"/></div></a></div>
 
             </div>
         );

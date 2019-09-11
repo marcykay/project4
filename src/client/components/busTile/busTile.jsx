@@ -123,11 +123,11 @@ class BusTile extends React.Component {
 
     componentDidMount() {
         //this.getBusArrival();
-        //this.interval = setInterval(() => this.getBusArrival(), 30000);
+        //this.interval = setInterval(() => this.getBusArrival(), 60000);
     }
 
     componentWillUnmount() {
-        //clearInterval(this.interval);
+        clearInterval(this.interval);
     }
 
     distance(lon1, lat1, lon2, lat2) {
@@ -172,8 +172,6 @@ class BusTile extends React.Component {
         const reactComponent = this;
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
-            // result.Services.sort( (a,b) => (parseInt(a.ServiceNo) > parseInt(b.ServiceNo) ) ? 1: -1 );
-            // reactComponent.setState({ data:result });
             console.log("arrival: ",result);
             if (result.Services.length > 0) {
                 reactComponent.setState({ data: result.Services[0]});
@@ -181,9 +179,7 @@ class BusTile extends React.Component {
                 console.log(reactComponent.state.data);
             } else{
                 console.log("undefined, probably bus no longer in service");
-                console.log("------------------------------");
             }
-
         };
         let request = new XMLHttpRequest();
         let api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+this.props.busPref.busstopcode;
@@ -266,8 +262,6 @@ class BusTile extends React.Component {
         let closeComponentId ="";
 
         if (this.state.updated) {
-            console.log("------------------------------------");
-            // console.log(this.parseTime(this.state.data.NextBus.EstimatedArrival));
             nextBus = this.parseTime(this.state.data.NextBus.EstimatedArrival);
             nextBus2 = this.parseTime(this.state.data.NextBus2.EstimatedArrival);
             nextBus3 = this.parseTime(this.state.data.NextBus3.EstimatedArrival);
@@ -287,7 +281,7 @@ class BusTile extends React.Component {
         return (
             <div className={styles.busTile}>
 
-            <div className={styles.settingsBar}><div className={styles.fixedRight} onClick={(e)=>{this.props.deleteUserBusPreference(e)}} ><img data-id={this.props.busPref.id}  src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568085653/closeX_mczwch.svg" height="15" width="15"/></div></div>
+            <div className={styles.settingsBar}><div className={styles.fixedRight} onClick={(e)=>{this.props.deleteUserBusPreference(e)}} ><img data-id={this.props.busPref.id}  src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568095868/closeXgrey_ruhlwz.svg" height="15" width="15"/></div></div>
 
                 <p><span><b>{this.props.busPref.description}</b> </span>|<span> {this.props.busPref.roadname} </span>|<small> {this.props.busPref.busstopcode}, {d} </small> </p>
                 <div className={styles.arrival_container}>

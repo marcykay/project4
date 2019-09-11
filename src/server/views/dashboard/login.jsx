@@ -14,11 +14,11 @@ class Login extends React.Component {
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
             </head>
             <body>
-                <div className="row login-card">
-                    <div className="col s12 m6 l4 offset-l4 offset-m3">
+                <div className="row login-card" style={{background:"#185371", height:"100vh"}}>
+                    <div className="col s12 m6 l4 offset-l4 offset-m3" style={{marginTop:"50px"}}>
                         <div className="card hoverable z-depth-3">
                         <div className="card-action teal lighten-3">
-                            <h3>Login</h3>
+                            <h3 style={{marginLeft:"20px"}}>Login</h3>
                         </div>
                         <div className="card-content" style={{background:"rgba(0,0,0,0.6)"}}>
                             <div className="row">
@@ -35,8 +35,8 @@ class Login extends React.Component {
                                         <input name="password" type="text" id="icon_prefix2" className="materialize-textarea"></input>
                                         <label for="icon_prefix2">Password</label>
                                     </div>
-                                    <div className="col s6 l6 offset-l3 offset-s3" style={{marginTop:"20px"}}>
-                                        <button type="submit" className="btn-block waves-effect waves-light btn-large">Login</button>
+                                    <div className="col s12" style={{marginTop:"20px"}}>
+                                        <p className="center-align"><button type="submit" className="btn-block waves-effect waves-light btn-large">Login</button></p>
                                     </div>
                                     <div className="row">
                                         <div className="col s12">
