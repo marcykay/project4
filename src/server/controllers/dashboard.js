@@ -34,7 +34,7 @@ module.exports = (db) => {
                 if (results[0].password === hashedPW) {
                     giveCookie(results[0].id, request.body.username, response);
                     let currentUser = results[0].id;
-                    console.log("##### login successful ##### ")
+                    console.log("##### login successful ##### ");
                     response.redirect('/gogo');
                     return;
                 } else {

@@ -10,14 +10,11 @@ class TimeTile extends React.Component {
         this.state = {
             date: new Date(),
             time: new Date(),
-            height: 0,
         };
     }
 
     componentDidMount() {
         const height = this.divElement.clientHeight;
-        // this.setState({ height });
-
         this.timerID = setInterval( () => this.tick(), 1000 );
     }
 

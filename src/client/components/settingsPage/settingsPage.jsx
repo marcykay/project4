@@ -112,7 +112,7 @@ class SettingsPage extends React.Component {
 
                 <div className={styles.services_container}> {busServiceNos}
                     {
-                        this.state.showButton ? (<button className="clickAddButton" onClick={()=>this.addPreferenceHandler()}> Click to Add >> </button>)
+                        this.state.showButton ? (<button className="clickAddButton" onClick={()=>this.addPreferenceHandler()}> Click to Add ➡️ </button>)
                         : (null)
                     }
                 </div>

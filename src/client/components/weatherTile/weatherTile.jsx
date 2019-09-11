@@ -96,10 +96,7 @@ class WeatherTile extends React.Component {
         let date = this.getDateYYYYMMDD();
         let responseHandler = function() {
           const result = JSON.parse(this.responseText);
-          console.log(result);
           reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
-          console.log("weather");
-          console.dir(reactComponent.state.weather24HrData);
         };
         let request = new XMLHttpRequest();
         request.addEventListener("load", responseHandler);
@@ -114,10 +111,9 @@ class WeatherTile extends React.Component {
         const reactComponent = this;
         if (reactComponent.state.latitude !== "") {
             let api_url = "https://api.sunrise-sunset.org/json?lat=" + reactComponent.state.latitude + "&lng=" + reactComponent.state.longitude + "&date=today";
-            console.log(api_url);
+            // console.log(api_url);
             let responseHandler = function() {
                 const result = JSON.parse(this.responseText);
-                console.log(result);
                 this.calcTime(result);
                 //reactComponent.setState({ weather24HrData:result.items[result.items.length-1] });
             };
@@ -127,7 +123,7 @@ class WeatherTile extends React.Component {
             request.setRequestHeader('accept', 'application/json');
             request.send();
         } else {
-            console.log("NO Coordinates data detected");
+            // console.log("NO Coordinates data detected");
         }
 
     }

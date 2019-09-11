@@ -35,10 +35,9 @@ class MainPage extends React.Component {
     }
 
     componentDidMount() {
-        this.getUserBusPreference();
-        this.getCoordinates();
-
         this.getBusStopsInfo();
+        this.getCoordinates();
+        this.getUserBusPreference();
     }
 
     componentWillUnmount() {
@@ -60,16 +59,13 @@ class MainPage extends React.Component {
     // helper for addUserBusPreference
     findBusInfo(code) {
         let tempStr = code.toString();
-        console.log(tempStr);
         let arr = this.state.busStops.filter(function(busStop){
             return busStop.RoadName.toLowerCase().includes(tempStr) || busStop.Description.toLowerCase().includes(tempStr) || busStop.BusStopCode.includes(tempStr);
         })
-        console.log(arr[0]);
         return arr[0];
     }
 
     selectorNamesHandler(busStopCode) {
-        console.log(this.state.busServices);
         this.setState({busStopCode: busStopCode});
         // this.checkBusStopCodesForServiceNo(event.target.value);
         this.ajaxBusAvailable(busStopCode);
@@ -83,15 +79,13 @@ class MainPage extends React.Component {
 
     clickAddServiceNoHandler(event) {
         let value = event.target.innerText;
-        console.log("value= ",value);
-        console.log("serviceNo= ",this.state.serviceNo);
+
         if (this.state.serviceNo === value) {
             this.setState({serviceNo: ""});
         } else {
             this.setState({serviceNo: value});
         }
-        console.log('-----');
-        console.log('service no selected :::::> ',this.state.serviceNo);
+
     }
 
     parseTime(estimatedBusArrival) {
@@ -126,16 +120,16 @@ class MainPage extends React.Component {
 
         function success(pos) {
             let crd = pos.coords;
-            console.log('Your current position is:');
-            console.log(`Latitude : ${crd.latitude}`);
-            console.log(`Longitude: ${crd.longitude}`);
-            console.log(`More or less ${crd.accuracy} meters`);
+            // console.log('Your current position is:');
+            // console.log(`Latitude : ${crd.latitude}`);
+            // console.log(`Longitude: ${crd.longitude}`);
+            // console.log(`More or less ${crd.accuracy} meters`);
             reactComponent.setState({latitude : crd.latitude})
             reactComponent.setState({longitude : crd.longitude})
         }
 
         function error(err) {
-            console.warn(`ERROR(${err.code}): ${err.message}`);
+            // console.warn(`ERROR(${err.code}): ${err.message}`);
         }
 
         navigator.geolocation.getCurrentPosition(success, error, options)
@@ -179,7 +173,11 @@ class MainPage extends React.Component {
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
             reactComponent.setState({ busPref: result.results });
-            console.log("user bus prefs: ",reactComponent.state.busPref);
+            // console.log("user bus prefs: ",reactComponent.state.busPref);
+
+            if (reactComponent.state.busPref.length === 0) {
+                reactComponent.setState({showSettings: true});
+            }
         };
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.addEventListener("load", responseHandler);
@@ -215,9 +213,7 @@ class MainPage extends React.Component {
             var obj = Object.assign({}, result.Services[0], reactComponent.state.busPref[index]);
             let arr = reactComponent.state.busPref;
             arr[index] = obj;
-            console.log(arr);
-            reactComponent.setState({ busPref : arr})
-            console.log("result state: ", reactComponent.state.busPref);
+            reactComponent.setState({ busPref : arr});
         };
         let request = new XMLHttpRequest();
         let api_url1 = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+bus_stop_code;
@@ -248,18 +244,61 @@ class MainPage extends React.Component {
         request.send();
     }
 
-    checkBusStopCodesForServiceNo(busCode) {
+    ajaxBusRoutes(){
+        const reactComponent = this;
 
-        console.log(busCode);
-        console.log(this.state.busRoutes);
-        let arr = this.state.busRoutes.filter(function(item){
-            return item.BusStopCode == busCode;
-        })
-        console.log(arr);
-        this.setState({busServicesAvailableAtBusCode: arr});
-        console.log(this.state.busServicesAvailableAtBusCode);
+        if ( window.localStorage.getItem('busRoutes1') === null ){
+            // console.log("no bus routes detected on localstorage, parsingAPI-counter=", reactComponent.state.busRoutesCounter );
+            let skip = "";
+            if (!reactComponent.state.endOfArray) {
+                if (reactComponent.state.busRoutesCounter > 0) {
+                    skip = "?$skip=" + reactComponent.state.busRoutesCounter*500;
+                }
+                let responseHandler = function() {
+                    const result = JSON.parse(this.responseText);
+                    reactComponent.setState({busRoutes: reactComponent.state.busRoutes.concat(result.value) });
+
+                    reactComponent.setState({busRoutesCounter: reactComponent.state.busRoutesCounter+1});
+                    if (result.value.length===0) {
+                        reactComponent.setState({endOfArray: true});
+                        // console.log("All Bus Routes Fully Loaded");
+                        var array1 = reactComponent.state.busRoutes
+                        var array2 = array1.splice(0, Math.ceil(array1.length / 2));
+                        var array1a = array1.splice(0, Math.ceil(array1.length / 2));
+                        var array2a = array2.splice(0, Math.ceil(array1.length / 2));
+
+                        window.localStorage.setItem("busRoutes1", JSON.stringify(array1));
+                        window.localStorage.setItem("busRoutes1a", JSON.stringify(array2));
+                        window.localStorage.setItem("busRoutes2", JSON.stringify(array2));
+                        window.localStorage.setItem("busRoutes2a", JSON.stringify(array2));
+                    }
+                    if (!reactComponent.state.endOfArray){
+                        reactComponent.ajaxBusRoutes();
+                    }
+                };
+                let request = new XMLHttpRequest();
+                let api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusRoutes" + skip;
+                request.addEventListener("load", responseHandler);
+                request.open("GET", api_url);
+                request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
+                request.setRequestHeader('accept', 'application/json');
+                request.send();
+            } else {
+                // console.log("end of array : unable to proceed");
+            }
+        } else {
+            // console.log("retrieving records from local storage");
+            let data1 = reactComponent.retrieveLocalData('busRoutes1');
+            let data1a = reactComponent.retrieveLocalData('busRoutes1');
+            let data2 = reactComponent.retrieveLocalData('busRoutes2');
+            let data2a = reactComponent.retrieveLocalData('busRoutes2');
+
+            reactComponent.setState({busRoutes : data1.concat(data1a, data2, data2a)});
+            // console.log("copied from local storage");
+            // console.log(reactComponent.state.busRoutes);
+            // console.log("bus Routes records :",reactComponent.state.busRoutes.length);
+        }
     }
-
 
     getBusStopsInfo() {
         const reactComponent = this;
@@ -278,7 +317,6 @@ class MainPage extends React.Component {
                     reactComponent.setState({busStopsCounter: reactComponent.state.busStopsCounter+1});
                     if (result.value.length===0) {
                         reactComponent.setState({endOfArray: true});
-                        console.log("All Bus Stops Fully Loaded");
                         reactComponent.setState({loadingBusStopInfo: false});
                         reactComponent.storeLocalData('busStopCodes', reactComponent.state.busStops);
                     }
@@ -294,13 +332,13 @@ class MainPage extends React.Component {
                 request.setRequestHeader('accept', 'application/json');
                 request.send();
             } else {
-                console.log("end of array : unable to proceed");
+                // console.log("end of array : unable to proceed");
                 reactComponent.setState({loadingBusStopInfo: false});
             }
         } else {
             let data = reactComponent.retrieveLocalData('busStopCodes');
             reactComponent.setState({busStops : data});
-            console.log("copied from local storage");
+            // console.log("copied from local storage");
             reactComponent.setState({loadingBusStopInfo: false});
         }
 
@@ -308,11 +346,11 @@ class MainPage extends React.Component {
 
     storeLocalData(key, data){
         window.localStorage.setItem(key, JSON.stringify(data));
-        console.log("completed storage");
+        // console.log("completed storage");
     }
 
     retrieveLocalData(key){
-        console.log('retrieving local storage');
+        // console.log('retrieving local storage');
         let data = window.localStorage.getItem(key);
         return JSON.parse(data);
     }
@@ -369,63 +407,6 @@ class MainPage extends React.Component {
         request.send();
     }
 
-    ajaxBusRoutes(){
-        console.log("ajax bus routes");
-        const reactComponent = this;
-
-        if ( window.localStorage.getItem('busRoutes1') === null ){
-            console.log("no bus routes detected on localstorage, parsingAPI-counter=", reactComponent.state.busRoutesCounter );
-            let skip = "";
-            if (!reactComponent.state.endOfArray) {
-                if (reactComponent.state.busRoutesCounter > 0) {
-                    skip = "?$skip=" + reactComponent.state.busRoutesCounter*500;
-                }
-                let responseHandler = function() {
-                    const result = JSON.parse(this.responseText);
-                    reactComponent.setState({busRoutes: reactComponent.state.busRoutes.concat(result.value) });
-                    console.log("length of busroutes now: ",reactComponent.state.busRoutes.length)
-                    reactComponent.setState({busRoutesCounter: reactComponent.state.busRoutesCounter+1});
-                    if (result.value.length===0) {
-                        reactComponent.setState({endOfArray: true});
-                        console.log("All Bus Routes Fully Loaded");
-                        var array1 = reactComponent.state.busRoutes
-                        var array2 = array1.splice(0, Math.ceil(array1.length / 2));
-                        var array1a = array1.splice(0, Math.ceil(array1.length / 2));
-                        var array2a = array2.splice(0, Math.ceil(array1.length / 2));
-
-                        window.localStorage.setItem("busRoutes1", JSON.stringify(array1));
-                        window.localStorage.setItem("busRoutes1a", JSON.stringify(array2));
-                        window.localStorage.setItem("busRoutes2", JSON.stringify(array2));
-                        window.localStorage.setItem("busRoutes2a", JSON.stringify(array2));
-                    }
-                    if (!reactComponent.state.endOfArray){
-                        reactComponent.ajaxBusRoutes();
-                    }
-                };
-                let request = new XMLHttpRequest();
-                let api_url = "https://cors-anywhere.herokuapp.com/http://datamall2.mytransport.sg/ltaodataservice/BusRoutes" + skip;
-                request.addEventListener("load", responseHandler);
-                request.open("GET", api_url);
-                request.setRequestHeader('AccountKey', 'o73n5Dg0SfWF32z1JpnyuQ==');
-                request.setRequestHeader('accept', 'application/json');
-                request.send();
-            } else {
-                console.log("end of array : unable to proceed");
-            }
-        } else {
-            console.log("retrieving records from local storage");
-            let data1 = reactComponent.retrieveLocalData('busRoutes1');
-            let data1a = reactComponent.retrieveLocalData('busRoutes1');
-            let data2 = reactComponent.retrieveLocalData('busRoutes2');
-            let data2a = reactComponent.retrieveLocalData('busRoutes2');
-
-            reactComponent.setState({busRoutes : data1.concat(data1a, data2, data2a)});
-            console.log("copied from local storage");
-            console.log(reactComponent.state.busRoutes);
-            console.log("bus Routes records :",reactComponent.state.busRoutes.length);
-        }
-    }
-
     ajaxBusServices(){
         console.log("ajax bus services");
         const reactComponent = this;
@@ -468,51 +449,17 @@ class MainPage extends React.Component {
         }
     }
 
-    calcTime(result) {
-        var d = new Date();
-        var n = d.getTimezoneOffset()/60;
-        // create Date object for current location
-        var d = new Date();
-        // convert to msec
-        // add local time zone offset
-        // get UTC time in msec
-        var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-        // create new Date object for different city
-        // using supplied offset
-        var nd = new Date(utc + (3600000*offset));
-        // return time as a string
-        return "The local time in " + city + " is " + nd.toLocaleString();
-    }
+    checkBusStopCodesForServiceNo(busCode) {
 
-    doMisc() {
-        console.log(this.state.busRoutes.length);
-        // var array1 = this.state.busRoutes;
-        //
-        // var array2 = array1.splice(0, Math.ceil(array1.length / 2));
-        // var array1a = array1.splice(0, Math.ceil(array1.length / 2));
-        // var array2a = array2.splice(0, Math.ceil(array1.length / 2));
-        //
-        // console.log(array1);
-        // window.localStorage.setItem("busRoutes1", JSON.stringify(array1));
-        // window.localStorage.setItem("busRoutes1a", JSON.stringify(array1));
-        // console.log("completed storage 1 ");
-        //
-        // console.log(array2);
-        // window.localStorage.setItem("busRoutes2", JSON.stringify(array2));
-        // window.localStorage.setItem("busRoutes2a", JSON.stringify(array2));
-        // console.log("completed storage 2 ");
-        // console.log("do misc");
-        // let data1 = JSON.parse(this.retrieveLocalData('busRoutes1'));
-        // console.log(data1);
-        // let data2 = JSON.parse(this.retrieveLocalData('busRoutes2'));
-        // console.log(data2);
-        // this.setState({busRoutes : data1.concat(data2)});
-        // console.log("copied from local storage");
+        // console.log(busCode);
         // console.log(this.state.busRoutes);
+        let arr = this.state.busRoutes.filter(function(item){
+            return item.BusStopCode == busCode;
+        })
+        // console.log(arr);
+        this.setState({busServicesAvailableAtBusCode: arr});
+        // console.log(this.state.busServicesAvailableAtBusCode);
     }
-
-    //objs.sort((a,b) => (a.last_nom > b.last_nom) ? 1 : ((b.last_nom > a.last_nom) ? -1 : 0));
-
 
 //                                                |
 //                                                |
@@ -520,73 +467,25 @@ class MainPage extends React.Component {
 // ------------not in use ------------------------|
 
 
-// <p><input type="text" value={this.state.serviceNo} />Bus Service Nos
-// </p>
-//     <input type="text" value={this.state.busStopCode} />bus stop code
-// <button onClick={()=>this.ajaxBusServices('76209')}>
-// Load Bus Arrival
-// </button>
-// <button onClick={()=>this.getBusStopsInfo()}>
-// zzzBus Stops
-// </button>
-//
-// <button onClick={()=>this.addUserBusPreference()}>
-// Add Bus Preference
-// </button>
-//
-// <button onClick={()=>this.getUserBusPreference()}>
-// getUserBusPreference
-// </button>
-//
-// <button onClick={()=>this.ajaxBusRoutes()}>
-// Fetch Bus Routes
-// </button>
-//
-// <button onClick={()=>this.storeLocalData('busStopCodes', this.state.busStops)}>
-// Store Local
-// </button>
-//
-// <button onClick={()=>this.retrieveLocalData('busStopCodes')}>
-// Retrieve Local
-// </button>
-//
-// <button onClick={()=>this.deleteUserBusPreference('588')}>
-// delete record
-// </button>
-// <button onClick={()=>this.ajaxBusRoutes()}>
-// Fetch Bus Routes
-// </button>
-//
-// <button onClick={()=>this.storeLocalData('busRoutes', this.state.busRoutes)}>
-// Store Local
-// </button>
-//
-// <button onClick={()=>this.retrieveLocalData('busRoutes')}>
-// Retrieve Local
-// </button>
-//
-// <button onClick={()=>this.doMisc()}>
-// do misc
-// </button>
-
 
     render() {
 
         let busInfo = "";
-        if (this.state.busPref.length > 0) {
+        if (this.state.busPref!= null && this.state.busPref.length > 0) {
             busInfo = this.state.busPref.map((item,index)=>{
-                return (<BusTile busPref={this.state.busPref[index]} latitude={this.state.latitude} longitude={this.state.longitude} deleteUserBusPreference={(id)=>this.deleteUserBusPreference(id)}/>)
+                return (<BusTile key={index} busPref={this.state.busPref[index]} latitude={this.state.latitude} longitude={this.state.longitude} deleteUserBusPreference={(id)=>this.deleteUserBusPreference(id)}/>)
             })
         }
 
         return (
 
-            <div><div className={styles.settingsBar}><img className={styles.fixedright} src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568084559/settingsblack_i6dlyw.svg" height="40" width="40" onClick={()=>this.settingsHandler()}/></div>
+            <div><div className={styles.settingsBar}><img className={styles.fixedright} src="https://res.cloudinary.com/djm7zwedb/image/upload/v1568084559/settingsblack_i6dlyw.svg" height="30" width="30" onClick={()=>this.settingsHandler()}/></div>
 
                 {
                     this.state.showSettings ? (<SettingsPage inputSearchNamesHandler={(e)=>this.inputSearchNamesHandler(e)} inputSearchField={this.state.inputSearchField} selectorNamesHandler={(e)=>this.selectorNamesHandler(e)} filteredBusStops={this.state.filteredBusStops} data={this.state.data} clickAddServiceNoHandler={(e)=>this.clickAddServiceNoHandler(e)} addUserBusPreference={()=>this.addUserBusPreference()} getBusStopsInfo={()=>this.getBusStopsInfo()}/>)
                     : (null)
                 }
+
                 {
                     this.state.loadingBusStopInfo ? (<div style={{textAlign:'center'}}><h2 data-text="Loading...">Loading...</h2></div>)
                     : (null)
@@ -594,10 +493,6 @@ class MainPage extends React.Component {
                 <TimeTile />
                 <WeatherTile />
                 {busInfo}
-
-
-
-
 
             </div>
         );

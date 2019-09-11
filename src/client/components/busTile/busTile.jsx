@@ -110,8 +110,6 @@ const NoBar = styled.div`
     margin-top:10px;
 `;
 
-
-
 class BusTile extends React.Component {
     constructor() {
         super();
@@ -122,8 +120,8 @@ class BusTile extends React.Component {
     }
 
     componentDidMount() {
-        //this.getBusArrival();
-        //this.interval = setInterval(() => this.getBusArrival(), 60000);
+        this.getBusArrival();
+        this.interval = setInterval(() => this.getBusArrival(), 60000);
     }
 
     componentWillUnmount() {
@@ -172,13 +170,11 @@ class BusTile extends React.Component {
         const reactComponent = this;
         let responseHandler = function() {
             const result = JSON.parse(this.responseText);
-            console.log("arrival: ",result);
             if (result.Services.length > 0) {
                 reactComponent.setState({ data: result.Services[0]});
                 reactComponent.setState({ updated: true});
-                console.log(reactComponent.state.data);
             } else{
-                console.log("undefined, probably bus no longer in service");
+                // console.log("undefined, probably bus no longer in service");
             }
         };
         let request = new XMLHttpRequest();
@@ -242,10 +238,8 @@ class BusTile extends React.Component {
         }
     }
 
-
     render() {
         let d = this.distance(this.props.longitude, this.props.latitude,  this.props.busPref.longitude, this.props.busPref.latitude);
-        console.log(this.props.busPref.id);
 
         let nextBus = "";
         let nextBus2 = "";
@@ -259,7 +253,6 @@ class BusTile extends React.Component {
         let busLoad = "";
         let busLoad2 = "";
         let busLoad3 = "";
-        let closeComponentId ="";
 
         if (this.state.updated) {
             nextBus = this.parseTime(this.state.data.NextBus.EstimatedArrival);
@@ -276,7 +269,7 @@ class BusTile extends React.Component {
             busLoad3 = this.loadBusLoad(this.state.data.NextBus3.Load);
 
 
-        };
+        }
 
         return (
             <div className={styles.busTile}>

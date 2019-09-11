@@ -25,7 +25,7 @@ h2:before {
     max-width: 7em;
     white-space: nowrap;
     color: #fff;
-    animation: loading 8s linear;
+    animation: loading 10s linear infinite;
 }
 @keyframes loading {
     0% {
